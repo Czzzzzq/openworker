@@ -7,6 +7,7 @@ import { formatTokens, totalTokens } from "../usage";
 import { Dropdown, type Option } from "./Dropdown";
 import { Icon } from "./Icon";
 import { Toggle } from "./Toggle";
+import { CostChip } from "./CostChip";
 import {
   cancelDictation,
   getDictationLevel,
@@ -132,6 +133,8 @@ interface Props {
   // §8.4 breaker tripped this turn: the mode chip says so quietly until the turn ends
   // or an ask_user answer resets the streak.
   reviewerPaused?: boolean;
+  // Opens Settings ▸ 费用 — the budget chip's "打开费用看板" affordance.
+  onOpenCost?: () => void;
 }
 
 export function Composer(props: Props) {
@@ -514,7 +517,7 @@ export function Composer(props: Props) {
           <button
             className="shrink-0 opacity-60 hover:opacity-100"
             onClick={() => setAttachNotice(null)}
-            title="Dismiss"
+            title="关闭"
           >
             ✕
           </button>
@@ -598,8 +601,8 @@ export function Composer(props: Props) {
           <div className="relative">
             <button
               className={iconBtn + (attachMenuOpen ? " bg-paper text-ink" : "")}
-              title="Attach"
-              aria-label="Attach"
+              title="附件"
+              aria-label="附件"
               onClick={() => setAttachMenuOpen((v) => !v)}
             >
               <Icon name="plus" size={17} />
@@ -702,6 +705,11 @@ export function Composer(props: Props) {
             />
           )}
 
+          {/* API 费用预算条（cost meter）— 与 token 统计并列的常驻图框。 */}
+          {!dictation?.recording && (
+            <CostChip sessionId={props.sessionId} onOpenCost={props.onOpenCost} />
+          )}
+
           {/* model — a quiet chip, now for the session's whole life (§17 rev 2026-07-22:
               mid-session switching shipped, so the picker stays actionable; the topbar
               subtitle still states the current model). */}
@@ -709,10 +717,10 @@ export function Composer(props: Props) {
             <button
               className="pill model-warn chip"
               onClick={() => props.onConnectModel?.()}
-              title="Connect a model"
-              aria-label="No model connected — connect a model"
+              title="连接模型"
+              aria-label="未连接模型 — 请连接一个模型"
             >
-              <span className="pill-label">No model</span>
+              <span className="pill-label">未连接模型</span>
               <span className="model-warn-ico" aria-hidden>⚠</span>
             </button>
           ) : modelsLoaded ? (
@@ -722,9 +730,9 @@ export function Composer(props: Props) {
               className="pill chip text-faint cursor-default"
               disabled
               data-testid="models-loading"
-              title="Fetching the model list from the server"
+              title="正在从服务器获取模型列表"
             >
-              <span className="pill-label">Loading models…</span>
+              <span className="pill-label">加载模型中…</span>
             </button>
           ))}
 
@@ -1032,7 +1040,7 @@ function ModeMenu({
                   <Toggle
                     checked={!!unattended}
                     onChange={onUnattendedChange}
-                    title="Send approvals to the Inbox"
+                    title="Send approvals to Inbox"
                   />
                 </div>
               </>
@@ -1067,7 +1075,7 @@ function AttachChip({ a, onRemove }: { a: Attachment; onRemove: () => void }) {
           <span className="attach-name">{a.name}</span>
         </>
       )}
-      <button className="attach-x" onClick={onRemove} title="Remove">
+      <button className="attach-x" onClick={onRemove} title="移除">
         ✕
       </button>
     </div>

@@ -175,10 +175,10 @@ function SlackRail({ active }: { active: string }) {
       <div className="hiw-ws">{WS_NAME} ▾</div>
       <div className="hiw-slnav"><ThreadsIcon /> Threads</div>
       <div className="hiw-slnav"><SendIcon /> Drafts &amp; sent</div>
-      <div className="hiw-sect">Channels</div>
+      <div className="hiw-sect">频道</div>
       <div className={"hiw-ch" + (active === "general" ? " on" : "")}># general</div>
       <div className={"hiw-ch" + (active === "launch-room" ? " on" : "")}># launch-room</div>
-      <div className="hiw-sect">Direct messages</div>
+      <div className="hiw-sect">私信</div>
       <div className="hiw-slnav"><span className="hiw-pres" />Priya N</div>
       <div className="hiw-slnav"><span className="hiw-pres" />Emma W</div>
       <div className="hiw-sect">Agents &amp; apps</div>
@@ -290,7 +290,7 @@ function SceneMention({ meFirst, meInitial }: { meFirst: string; meInitial: stri
         <div className="hiw-slmain">
           <div className="hiw-slhead"># launch-room <span className="hiw-sub">· 24 members</span></div>
           <div className="hiw-slmsgs">
-            <SlackDate label="Today" />
+            <SlackDate label="今天" />
             <Msg av="P" avBg="#7c6cd0" name="Priya N" ts="6:31 PM">
               signups are spiking since the post 📈
             </Msg>
@@ -306,14 +306,14 @@ function SceneMention({ meFirst, meInitial }: { meFirst: string; meInitial: stri
               <span className="hiw-men">@OpenWorker</span> summarize this thread
             </Msg>
           </div>
-          <SlackComposer placeholder="Message #launch-room" />
+          <SlackComposer placeholder="发消息到 #launch-room" />
           <div className="hiw-slthread hiw-k" style={d("5.1s")}>
             <div className="hiw-th">Thread <span className="hiw-sub"># launch-room</span><span className="hiw-x">✕</span></div>
             <div className="hiw-tmsgs">
               <Msg av={meInitial} avBg="#3b82c4" name={meFirst} ts="6:33 PM">
                 <span className="hiw-men">@OpenWorker</span> summarize this thread
               </Msg>
-              <div className="hiw-cnt">1 reply</div>
+              <div className="hiw-cnt">1 条回复</div>
               <Msg av="OW" avBg="#4a154b" name="OpenWorker" app ts="6:34 PM">
                 Launch traction: signups up 3.4× since the post…
               </Msg>
@@ -331,10 +331,10 @@ function SceneMention({ meFirst, meInitial }: { meFirst: string; meInitial: stri
           <div className="hiw-owchat">
             <div className="hiw-bub user hiw-k" style={d("2.8s")}>@OpenWorker summarize this thread</div>
             <div className="hiw-bub agent hiw-k" style={d("3.6s")}>
-              Reading the thread… signups up 3.4×, top referrer is the press page. <i>(replying in the Slack thread)</i>
+              Reading the thread… signups up 3.4×, top referrer is the press page. <i>（在 Slack 线程中回复）</i>
             </div>
           </div>
-          <div className="hiw-owcomposer">Message OpenWorker…</div>
+          <div className="hiw-owcomposer">给 OpenWorker 发消息…</div>
         </div>
       </OwWin>
     </>
@@ -352,7 +352,7 @@ function SceneThread({ meFirst, meInitial }: { meFirst: string; meInitial: strin
         <div className="hiw-slmain">
           <div className="hiw-slhead"># launch-room <span className="hiw-sub">· 24 members</span></div>
           <div className="hiw-slmsgs">
-            <SlackDate label="Today" />
+            <SlackDate label="今天" />
             <Msg av="P" avBg="#7c6cd0" name="Priya N" ts="6:31 PM">
               signups are spiking since the post 📈
             </Msg>
@@ -368,7 +368,7 @@ function SceneThread({ meFirst, meInitial }: { meFirst: string; meInitial: strin
               <span className="hiw-men">@OpenWorker</span> summarize this thread
             </Msg>
           </div>
-          <SlackComposer placeholder="Message #launch-room" />
+          <SlackComposer placeholder="发消息到 #launch-room" />
           {/* thread panel open from the start — the new mentions play INSIDE it */}
           <div className="hiw-slthread">
             <div className="hiw-th">Thread <span className="hiw-sub"># launch-room</span><span className="hiw-x">✕</span></div>
@@ -376,7 +376,7 @@ function SceneThread({ meFirst, meInitial }: { meFirst: string; meInitial: strin
               <Msg av={meInitial} avBg="#3b82c4" name={meFirst} ts="6:33 PM">
                 <span className="hiw-men">@OpenWorker</span> summarize this thread
               </Msg>
-              <div className="hiw-cnt">2 replies</div>
+              <div className="hiw-cnt">2 条回复</div>
               <Msg av="OW" avBg="#4a154b" name="OpenWorker" app ts="6:34 PM">
                 Launch traction: signups up 3.4×…
               </Msg>
@@ -414,7 +414,7 @@ function SceneThread({ meFirst, meInitial }: { meFirst: string; meInitial: strin
               Top countries: US 41%, India 22%, Germany 9% — context kept from the whole thread.
             </div>
           </div>
-          <div className="hiw-owcomposer">Message OpenWorker…</div>
+          <div className="hiw-owcomposer">给 OpenWorker 发消息…</div>
         </div>
       </OwWin>
     </>
@@ -432,7 +432,7 @@ function SceneTeammates() {
         <div className="hiw-slmain">
           <div className="hiw-slhead"># launch-room <span className="hiw-sub">· 24 members</span></div>
           <div className="hiw-slmsgs">
-            <SlackDate label="Today" />
+            <SlackDate label="今天" />
             <Msg
               av="P" avBg="#7c6cd0" name="Priya N" ts="6:41 PM" delay=".7s"
               extra={
@@ -445,7 +445,7 @@ function SceneTeammates() {
               <span className="hiw-men">@OpenWorker</span> pull the signup numbers?
             </Msg>
           </div>
-          <SlackComposer placeholder="Message #launch-room" />
+          <SlackComposer placeholder="发消息到 #launch-room" />
         </div>
       </SlackWin>
       <OwWin>

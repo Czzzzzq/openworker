@@ -257,10 +257,10 @@ export function App() {
   const [gateCreate, setGateCreate] = useState(false);
   // Which Settings section the full-page Settings surface opens on (§ Settings-as-page).
   const [settingsTab, setSettingsTab] = useState<
-    "appearance" | "models" | "skills" | "voice" | "memory" | "personas"
+    "appearance" | "models" | "skills" | "voice" | "memory" | "personas" | "cost"
   >("appearance");
   const openSettings = (
-    tab: "appearance" | "models" | "skills" | "voice" | "memory" | "personas" = "appearance",
+    tab: "appearance" | "models" | "skills" | "voice" | "memory" | "personas" | "cost" = "appearance",
   ) => {
     setSettingsTab(tab);
     setSurface("settings");
@@ -1656,7 +1656,7 @@ export function App() {
             <button
               className="text-[12px] text-faint px-0.5"
               data-testid="toast-dismiss"
-              title="Dismiss"
+              title="关闭"
               onClick={() => setRunToast(null)}
             >
               ✕
@@ -1683,8 +1683,8 @@ export function App() {
           className="nav-reveal-btn"
           onClick={toggleNav}
           onMouseEnter={() => setNavPeek(true)}
-          title="Show sidebar (⌘B)"
-          aria-label="Show sidebar"
+          title="显示侧边栏 (⌘B)"
+          aria-label="显示侧边栏"
         >
           <Icon name="sidebar" size={16} />
         </button>
@@ -1798,24 +1798,24 @@ export function App() {
                 <button
                   className="topbar-icon-btn"
                   onClick={toggleNav}
-                  aria-label="Show sidebar"
-                  title="Show sidebar (⌘B)"
+                  aria-label="显示侧边栏"
+                  title="显示侧边栏 (⌘B)"
                 >
                   <Icon name="sidebar" size={16} />
                 </button>
                 <button
                   className="topbar-icon-btn"
                   onClick={() => startNewSession()}
-                  aria-label="New session"
-                  title="New session"
+                  aria-label="新会话"
+                  title="新会话"
                 >
                   <Icon name="plus" size={16} />
                 </button>
                 <button
                   className="topbar-icon-btn"
                   onClick={() => setSearchOpen(true)}
-                  aria-label="Search"
-                  title="Search"
+                  aria-label="搜索"
+                  title="搜索"
                 >
                   <Icon name="search" size={16} />
                 </button>
@@ -1864,10 +1864,10 @@ export function App() {
                 className="topbar-artifacts-btn"
                 onMouseDown={(e) => e.stopPropagation()}
                 onClick={() => setRailHidden(false)}
-                title="Show files this conversation produced"
+                title="查看本次会话生成的文件"
               >
                 <Icon name="file" size={14} />
-                <span>Artifacts</span>
+                <span>产出文件</span>
                 <span className="topbar-artifacts-count">{artifactCount}</span>
               </button>
             )}
@@ -2082,6 +2082,7 @@ export function App() {
               workspace={workspace || ""}
               unattended={unattended}
               onUnattendedChange={agent !== "chat" ? toggleUnattended : undefined}
+              onOpenCost={() => openSettings("cost")}
               prefill={composerPrefill}
               resetKey={sessionId}
               usage={usage}

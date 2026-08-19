@@ -75,10 +75,10 @@ export function SessionIntro({
       <div className="intro-tasks">
         <button className="task-card" data-testid="intro-task-folder" onClick={pickFolder}>
           <span className="task-card-body">
-            <span className="task-card-title">Analyze the files in a directory</span>
-            <span className="task-card-sub">I'll read them and summarize what matters</span>
+            <span className="task-card-title">分析目录中的文件</span>
+            <span className="task-card-sub">我会阅读并总结重要内容</span>
           </span>
-          <span className="task-card-act">Pick a folder →</span>
+          <span className="task-card-act">选择文件夹 →</span>
         </button>
         {addingFolder && (
           <div className="intro-addfolder">
@@ -102,7 +102,7 @@ export function SessionIntro({
           onClick={() => (hubspotReady ? onPrefill(HUBSPOT_PROMPT) : onOpenSessionSettings())}
         >
           <span className="task-card-body">
-            <span className="task-card-title">Create a report from my HubSpot leads</span>
+            <span className="task-card-title">从我的 HubSpot 线索创建报告</span>
             <span className="task-card-sub">
               {dot("hubspot", hubspotReady)}
               Sources, stages, and who needs follow-up
@@ -117,7 +117,7 @@ export function SessionIntro({
           onClick={() => (ghSlackReady ? onPrefill(GH_SLACK_PROMPT) : onOpenSessionSettings())}
         >
           <span className="task-card-body">
-            <span className="task-card-title">Automate a weekly GitHub progress report to Slack</span>
+            <span className="task-card-title">自动化每周 GitHub 进度报告发送到 Slack</span>
             <span className="task-card-sub">
               {dot("github", live.has("github"))}
               {dot("slack", live.has("slack"))}

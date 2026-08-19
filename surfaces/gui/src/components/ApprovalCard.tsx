@@ -154,7 +154,7 @@ export function PreviewBlock({ text, mono = true }: { text: string; mono?: boole
       {clipped && (
         <button className="approval-prev-more" onClick={() => setAll((v) => !v)}>
           {all
-            ? "show less"
+            ? "Show less"
             : lines.length > PREVIEW_LINES
               ? `show all ${lines.length} lines`
               : "show the full message"}
@@ -381,7 +381,7 @@ export function ApprovalCard({
             {item.args?.as_screenshot ? " · as a PNG screenshot" : ""}
           </span>
           {item.args?.comment && (
-            <MessagePreview text={String(item.args.comment)} label="With the message" />
+            <MessagePreview text={String(item.args.comment)} label="附带消息" />
           )}
         </>
       )}

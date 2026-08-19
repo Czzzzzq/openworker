@@ -88,7 +88,7 @@ export function UpdateBanner() {
       role="status"
       data-testid="update-banner"
     >
-      <div className="text-[13px] font-semibold">Update available</div>
+      <div className="text-[13px] font-semibold">有可用更新</div>
       <div className="text-[12px] text-muted mt-0.5">
         OpenWorker v{update.version} is ready to install.
       </div>

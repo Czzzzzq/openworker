@@ -43,7 +43,7 @@ export function GmailDetail({ c, cloud, slack: _slack, onChanged }: DetailProps)
                 </span>
               </>
             ) : (
-              <span>Not connected</span>
+              <span>未连接</span>
             )}
           </div>
         </div>
@@ -75,7 +75,7 @@ export function GmailDetail({ c, cloud, slack: _slack, onChanged }: DetailProps)
 
       {accounts.length > 0 && (
         <>
-          <div className={GRP_H + " !mt-0"}>Accounts</div>
+          <div className={GRP_H + " !mt-0"}>账户</div>
           <div className={GRP} data-testid="gmail-accounts">
             {accounts.map((a) => (
               <AccountRow key={a.email} a={a} onChanged={onChanged} />
@@ -101,8 +101,8 @@ function AccountRow({ a, onChanged }: { a: GmailAccount; onChanged: () => void }
     <div className={ROW} data-testid={`gmail-account-${a.email}`}>
       <span className="min-w-0 flex-1 flex items-center gap-2">
         <span className="text-[13px] font-medium truncate">{a.email}</span>
-        {a.default && <span className={TAG_ACCENT}>Default</span>}
-        {a.needs_reauth && <span className={TAG_WARN}>⚠ Sign in again</span>}
+        {a.default && <span className={TAG_ACCENT}>默认</span>}
+        {a.needs_reauth && <span className={TAG_WARN}>⚠ 重新登录</span>}
       </span>
       {!a.default && (
         <button
@@ -118,7 +118,7 @@ function AccountRow({ a, onChanged }: { a: GmailAccount; onChanged: () => void }
       )}
       <button
         className={XBTN}
-        title="Disconnect this mailbox"
+        title="断开此邮箱"
         data-testid={`gmail-disconnect-${a.email}`}
         disabled={busy}
         onClick={async () => {
@@ -138,12 +138,12 @@ function FiltersGroup({ c, onChanged }: Pick<DetailProps, "c" | "onChanged">) {
   const filters = c.filters ?? { senders: [], labels: [] };
   return (
     <>
-      <div className={GRP_H}>Never show agents</div>
+      <div className={GRP_H}>对 Agent 隐藏</div>
       <div className={GRP} data-testid="gmail-filters">
         <ChipListRow
-          label="Senders"
+          label="发件人"
           testid="gmail-filter-senders"
-          placeholder="name@example.com or @domain.com"
+          placeholder="name@example.com 或 @domain.com"
           values={filters.senders}
           onSave={async (senders) => {
             await setGmailFilters({ senders });
@@ -151,9 +151,9 @@ function FiltersGroup({ c, onChanged }: Pick<DetailProps, "c" | "onChanged">) {
           }}
         />
         <ChipListRow
-          label="Labels"
+          label="标签"
           testid="gmail-filter-labels"
-          placeholder="Label name, e.g. Personal"
+          placeholder="标签名，如：个人"
           values={filters.labels}
           onSave={async (labels) => {
             await setGmailFilters({ labels });
@@ -200,7 +200,7 @@ function ChipListRow({
             {v}
             <button
               className={XBTN}
-              title="remove"
+              title="移除"
               onClick={() => onSave(values.filter((x) => x !== v))}
             >
               ×

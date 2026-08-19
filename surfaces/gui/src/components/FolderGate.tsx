@@ -55,7 +55,7 @@ export function FolderGate({ onChoose, onCancel, create }: Props) {
             onKeyDown={(e) => e.key === "Enter" && open(path, create)}
             autoFocus
           />
-          <button className="btn" onClick={browse} title="Pick a folder">
+          <button className="btn" onClick={browse} title="选择文件夹">
             Browse…
           </button>
           <button className="btn primary" onClick={() => open(path, create)} disabled={!path.trim()}>
@@ -66,7 +66,7 @@ export function FolderGate({ onChoose, onCancel, create }: Props) {
 
         {recents.length > 0 && (
           <>
-            <div className="gate-label">Recent</div>
+            <div className="gate-label">最近</div>
             <div className="gate-recents">
               {recents.map((w) => (
                 <div className="gate-recent" key={w.path} onClick={() => open(w.path)} title={w.path}>

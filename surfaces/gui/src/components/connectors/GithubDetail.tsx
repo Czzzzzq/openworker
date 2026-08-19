@@ -80,7 +80,7 @@ export function GithubDetail({ c, cloud, onChanged }: DetailProps) {
                 </span>
               </>
             ) : (
-              <span>Not connected</span>
+              <span>未连接</span>
             )}
           </div>
         </div>
@@ -128,7 +128,7 @@ export function GithubDetail({ c, cloud, onChanged }: DetailProps) {
 
       {relay && listening.length > 0 && (
         <>
-          <div className={GRP_H}>Listening</div>
+          <div className={GRP_H}>监听中</div>
           <div className={GRP}>
             <ListeningRows subs={listening} onChanged={changed} />
           </div>
@@ -147,7 +147,7 @@ export function GithubDetail({ c, cloud, onChanged }: DetailProps) {
         <AddConnectionModal
           c={c}
           cloud={cloud}
-          title="Add an installation"
+          title="添加安装"
           onClose={() => setAdding(false)}
           onChanged={changed}
         />
@@ -227,7 +227,7 @@ function DisconnectBtn({ id, busy, onClick }: { id: string; busy: boolean; onCli
     <button
       className="text-[13px] text-danger/80 hover:text-danger shrink-0"
       data-testid={`disconnect-install-${id}`}
-      title="Stops relaying this installation to this computer. The App stays installed on GitHub."
+      title="停止将此安装中继到本电脑。应用仍保留在 GitHub 上。"
       onClick={onClick}
       disabled={busy}
     >
@@ -247,7 +247,7 @@ function PeopleRow({
 }) {
   return (
     <div className={ROW}>
-      <span className={LABEL}>People</span>
+      <span className={LABEL}>成员</span>
       <span className="min-w-0 flex-1 flex flex-wrap items-center gap-1.5">
         {allowed.length === 0 && (
           <span className="text-[12px] text-faint">nobody yet — approve a waiting sender below</span>
@@ -261,7 +261,7 @@ function PeopleRow({
             @{login}
             <button
               className={XBTN}
-              title="remove"
+              title="移除"
               onClick={() => disallowUser("github", login, installationId).then(onChanged)}
             >
               ×
@@ -289,7 +289,7 @@ function WaitingRow({ m, onChanged }: { m: ParkedMessage; onChanged: () => void 
       <button
         className={PILL_ACCENT + " !py-1"}
         data-testid={`parked-allow-deliver-${m.id}`}
-        title="Allow the sender and deliver this mention now"
+        title="允许发件人并立即投递此提及"
         onClick={() => act("allow_deliver")}
       >
         Allow & deliver
@@ -297,12 +297,12 @@ function WaitingRow({ m, onChanged }: { m: ParkedMessage; onChanged: () => void 
       <button
         className={PILL_LINE + " !py-1"}
         data-testid={`parked-allow-${m.id}`}
-        title="Allow the sender; this mention is discarded"
+        title="允许发件人；丢弃此提及"
         onClick={() => act("allow")}
       >
         Allow
       </button>
-      <button className={XBTN + " px-1"} data-testid={`parked-dismiss-${m.id}`} title="Dismiss" onClick={() => act("dismiss")}>
+      <button className={XBTN + " px-1"} data-testid={`parked-dismiss-${m.id}`} title="关闭" onClick={() => act("dismiss")}>
         ×
       </button>
     </div>
@@ -312,7 +312,7 @@ function WaitingRow({ m, onChanged }: { m: ParkedMessage; onChanged: () => void 
 function ListeningRows({ subs, onChanged }: { subs: Subscription[]; onChanged: () => void }) {
   return (
     <div className={ROW} data-testid="listening-github">
-      <span className={LABEL}>Listening</span>
+      <span className={LABEL}>监听中</span>
       <span className="min-w-0 flex-1 space-y-1">
         {subs.map((s) => (
           <span key={s.session_id + s.channel} className="flex items-center gap-2 text-[13px]">
@@ -325,7 +325,7 @@ function ListeningRows({ subs, onChanged }: { subs: Subscription[]; onChanged: (
             </span>
             <button
               className={XBTN + " ml-auto"}
-              title="Unsubscribe this session"
+              title="取消订阅此会话"
               onClick={async () => {
                 await unsubscribeChannel(s.session_id, s.channel);
                 onChanged();

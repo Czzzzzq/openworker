@@ -49,10 +49,10 @@ export function RootRow({
         disabled={busy || root.primary}
         title={root.primary ? "The main workspace is always read-write" : "Toggle read-only / read-write"}
       >
-        {root.writable ? "Read-write" : "Read-only"}
+        {root.writable ? "Read & write" : "Read-only"}
       </button>
       {!root.primary && (
-        <button className="root-x" onClick={() => onRemove(root.path)} disabled={busy} title="Remove">
+        <button className="root-x" onClick={() => onRemove(root.path)} disabled={busy} title="移除">
           ×
         </button>
       )}

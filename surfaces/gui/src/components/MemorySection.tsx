@@ -78,7 +78,7 @@ export function MemorySection() {
   };
 
   if (!settings || entries === null)
-    return <div className="text-[13px] text-muted">Loading…</div>;
+    return <div className="text-[13px] text-muted">加载中…</div>;
 
   return (
     <section>

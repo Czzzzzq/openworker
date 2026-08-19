@@ -137,7 +137,7 @@ describe("ApprovalCard — §35 shapes", () => {
     expect(prev.textContent!.length).toBeLessThan(500);
     fireEvent.click(screen.getByText("show the full message"));
     expect(document.querySelector(".approval-prev")!.textContent!.length).toBeGreaterThan(1000);
-    expect(screen.getByText("show less")).toBeTruthy();
+    expect(screen.getByText("Show less")).toBeTruthy();
   });
 
   it("short send_message text keeps the inline quote (no preview box)", () => {
@@ -255,7 +255,7 @@ describe("ApprovalCard — save_skill (SKILLS-SPEC §5.2)", () => {
   it("uses the §7 button copy and never offers a session-wide always", () => {
     const onApprove = vi.fn();
     render(<ApprovalCard item={skillApproval()} onApprove={onApprove} />);
-    expect(screen.queryByText("Always allow")).toBeNull(); // every proposal gets its own review
+    expect(screen.queryByText("Allow every time")).toBeNull(); // every proposal gets its own review
     expect(screen.queryByText("Deny")).toBeNull();
     fireEvent.click(screen.getByText("Add to my skills"));
     expect(onApprove).toHaveBeenCalledWith("once");
@@ -368,7 +368,7 @@ describe("InboxItemCard — parked save_skill proposals (SKILLS-SPEC §5.2)", ()
     ).toBeTruthy();
     expect(screen.getByText(/Fetch PRs/)).toBeTruthy();
     expect(screen.getByTestId("skill-bundle-files").textContent).toContain("fetch_prs.py");
-    expect(screen.getByText(/usable in every conversation/)).toBeTruthy();
+    expect(screen.getByText(/usable in every conversation from\s+then on/)).toBeTruthy();
     expect(screen.queryByText("Allow once")).toBeNull();
     fireEvent.click(screen.getByText("Add to my skills"));
     expect(onResolve).toHaveBeenCalledWith("i9", "allow");

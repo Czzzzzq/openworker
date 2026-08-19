@@ -268,7 +268,7 @@ export function SkillsTab({
           </span>
           <button
             className="ml-auto shrink-0 opacity-60 hover:opacity-100"
-            aria-label="Dismiss"
+            aria-label="关闭"
             onClick={() => setNotice(null)}
           >
             ✕

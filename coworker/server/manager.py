@@ -22,6 +22,7 @@ from typing import Any, Optional
 
 from ..agent import build_engine
 from ..agents import get_agent
+from ..costmeter import CostMeter, MeteredProvider
 from ..connections import (
     PersonaConnectionStore,
     SessionConnectionStore,
@@ -255,6 +256,8 @@ class SessionManager:
         self._mcp_session_failures: dict[str, list[str]] = {}
         self.gateway: Optional[Gateway] = None
         self._data_base = base
+        # API 费用统计：每轮模型调用的 usage 经 MeteredProvider 落入这里（JSONL 持久化）。
+        self.cost_meter = CostMeter(base, secrets=self.secrets)
         # Desktop/UI prefs (default model, onboarding state) — not secrets; a plain JSON file.
         self._prefs = self._load_prefs()
         if self._prefs.get("default_model"):
@@ -651,7 +654,7 @@ class SessionManager:
             workspace=ws,
             model=model,
             mode=mode,
-            provider=self.provider,
+            provider=self._metered_provider(session_id),
             # Memory off (§4.3) = stop LEARNING, not amnesia: saved facts still inject
             # and stay usable, only the write tools go. Read at build time; running
             # sessions finish under the mode they started with.
@@ -734,6 +737,16 @@ class SessionManager:
         if is_new_session:
             self._emit_session_created(session_id, agent_name)
         return engine
+
+    def _metered_provider(self, session_id: str) -> ProviderClient:
+        """Wrap the shared provider so every model call's usage is recorded to the
+        cost meter, tagged with this engine's session id. The router's cached
+        client stays untouched (the wrapper is per-engine and transparent)."""
+        return MeteredProvider(
+            self.provider,
+            lambda sid, model, usage: self.cost_meter.record(sid, model, usage),
+            session_id,
+        )
 
     def _emit_session_created(self, session_id: str, persona_id: str) -> None:
         """Phase 5 telemetry, fired once per brand-new session on a background thread
@@ -4309,7 +4322,7 @@ class SessionManager:
             model=task.model or self.model,
             mode=Mode.INTERACTIVE,
             approver=self._scheduled_approver(task, session_id),
-            provider=self.provider,
+            provider=self._metered_provider(session_id),
             memory_store=self.memory_store,
             memory_workspace=self._memory_key_for(None, task.workspace),
             memory_off=not self.memory_settings.enabled,
@@ -5519,7 +5532,10 @@ class SessionManager:
 
     # -- provider proxy ---------------------------------------------------------
     def provider_complete(self, model, messages, tools=None):
-        return self.provider.complete(model=model, messages=messages, tools=tools)
+        # Metered too: /v1/chat/completions calls land in the cost history as well.
+        return self._metered_provider("").complete(
+            model=model, messages=messages, tools=tools
+        )
 
     def _refresh_provider(self, name: Optional[str] = None) -> None:
         """Drop the router's cached client(s) so the next turn rebuilds with fresh config.

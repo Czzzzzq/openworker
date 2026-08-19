@@ -145,7 +145,7 @@ export function InboxView({
       <div className="flex-1 min-w-0 overflow-y-auto hairline-scroll">
         <div className="max-w-4xl mx-auto px-7 py-6">
           <PanelHead
-            title="Inbox"
+            title="收件箱"
             sub="Approvals, questions, and notifications from your coworkers — including sessions running unattended."
           />
 

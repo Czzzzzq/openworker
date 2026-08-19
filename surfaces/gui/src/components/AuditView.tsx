@@ -34,12 +34,12 @@ export function AuditView() {
       <div className="flex-1 min-w-0 overflow-y-auto hairline-scroll">
         <div className="max-w-4xl mx-auto px-7 py-6">
           <PanelHead
-            title="Activity"
+            title="活动"
             sub="Recent connector and browser tool activity. Arguments are sanitized before storage."
           />
 
           <div className="flex items-center gap-2 flex-wrap mb-4">
-            <input className={INPUT} placeholder="session id" value={sessionFilter} onChange={(e) => setSessionFilter(e.target.value)} />
+            <input className={INPUT} placeholder="会话 ID" value={sessionFilter} onChange={(e) => setSessionFilter(e.target.value)} />
             <input className={INPUT} placeholder="connector" value={connectorFilter} onChange={(e) => setConnectorFilter(e.target.value)} />
             <input className={INPUT} placeholder="tool" value={toolFilter} onChange={(e) => setToolFilter(e.target.value)} />
             <button className={BTN_ACCENT} onClick={refresh}>
@@ -48,7 +48,7 @@ export function AuditView() {
           </div>
 
           {events.length === 0 ? (
-            <div className={CARD + " p-4 text-[13px] text-muted"}>No audit events yet.</div>
+            <div className={CARD + " p-4 text-[13px] text-muted"}>暂无审计事件。</div>
           ) : (
             <div className="space-y-2">
               {events.map((ev) => (

@@ -143,7 +143,7 @@ export function ChannelPicker({
       <input
         ref={inputRef}
         className="chan-input w-full"
-        placeholder="slack:C0123 or channel link"
+        placeholder="slack:C0123 或频道链接"
         value={display}
         title={value || undefined}
         onChange={(e) => {
@@ -288,23 +288,23 @@ export function SubscriptionsChip({
     <div className="sub-chip-wrap" ref={ref}>
       <button
         className={"wschip sub-chip" + (open ? " active" : "")}
-        title="Channels this session listens to"
+        title="此会话监听的频道"
         onClick={() => setOpen((v) => !v)}
       >
         <Icon name="plug" size={12} /> {channels.length || "+"}
       </button>
       {open && (
         <div className="sub-pop" onMouseDown={(e) => e.stopPropagation()}>
-          <div className="sub-pop-head">Channels this session listens to</div>
+          <div className="sub-pop-head">此会话监听的频道</div>
           {channels.length === 0 ? (
-            <div className="dim sub-pop-empty">Not subscribed to any channel.</div>
+            <div className="dim sub-pop-empty">未订阅任何频道。</div>
           ) : (
             channels.map((c) => {
               const nm = recent.find((r) => r.channel === c)?.name;
               return (
               <div className="sub-pop-row" key={c}>
                 <span className="sub-pop-chan" title={c}>{nm ? `#${nm}` : c}</span>
-                <button className="sub-pop-x" title="Unsubscribe" onClick={() => remove(c)}>
+                <button className="sub-pop-x" title="取消订阅" onClick={() => remove(c)}>
                   ×
                 </button>
               </div>

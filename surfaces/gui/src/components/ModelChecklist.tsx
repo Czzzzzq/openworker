@@ -102,7 +102,7 @@ export function ModelChecklist({
               </span>
             </label>
             {isDefault ? (
-              <span className="mlist-default">default</span>
+              <span className="mlist-default">默认</span>
             ) : (
               <button className="mlist-make" onClick={() => makeDefault(id)}>
                 Make default
@@ -127,7 +127,7 @@ export function ModelChecklist({
           </select>
         )}
         <input
-          placeholder="Add another model…"
+          placeholder="添加更多模型…"
           value={draft}
           spellCheck={false}
           autoComplete="off"
