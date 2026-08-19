@@ -1,8 +1,8 @@
-// Composer 中的预算条（预算图框的常驻形态）：迷你预算进度条 + 今日费用，点击展开
-// 今日/会话/预算/峰谷明细，并可跳转到 Settings ▸ 费用 看板。数据来自 /v1/cost/stats。
+// Composer 中的预算条：淡蓝迷你进度条 = 已用占官方余额 %，旁边显示今日费用。
+// 点击展开今日/会话/累计、已用占余额明细，并可跳转到 Settings ▸ 费用 看板。
 
 import { useEffect, useState } from "react";
-import { getCostStats, type CostStats } from "../api";
+import { getCostBalance, getCostStats, type CostBalance, type CostStats } from "../api";
 
 const fmt = (n: number | undefined | null, currency?: string): string => {
   const v = Number(n || 0);
@@ -10,6 +10,9 @@ const fmt = (n: number | undefined | null, currency?: string): string => {
   const s = v < 0.01 && v > 0 ? v.toFixed(4) : v.toFixed(2);
   return `${sym}${s}`;
 };
+
+// 淡蓝（用户指定）：进度条与其余 UI 的 accent 区分开。
+const BAR_COLOR = "#8ab8e6";
 
 export function CostChip({
   sessionId,
@@ -19,6 +22,7 @@ export function CostChip({
   onOpenCost?: () => void;
 }) {
   const [stats, setStats] = useState<CostStats | null>(null);
+  const [balance, setBalance] = useState<CostBalance | null>(null);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -30,8 +34,18 @@ export function CostChip({
           if (active) setStats(s);
         })
         .catch(() => undefined);
+    const loadBalance = () =>
+      getCostBalance()
+        .then((b) => {
+          if (active) setBalance(b);
+        })
+        .catch(() => undefined);
     load();
-    const t = window.setInterval(load, 30_000);
+    loadBalance();
+    const t = window.setInterval(() => {
+      load();
+      loadBalance();
+    }, 30_000);
     return () => {
       active = false;
       window.clearInterval(t);
@@ -41,10 +55,14 @@ export function CostChip({
   if (!sessionId || !stats?.total || stats.total.calls === 0) return null;
 
   const currency = stats.budget?.currency || "CNY";
-  const pct = stats.budget?.used_pct;
-  const showBar = pct != null && stats.budget.amount > 0;
-  const barColor =
-    pct == null ? "var(--line)" : pct >= 90 ? "var(--danger)" : pct >= 70 ? "var(--warn-ink)" : "var(--ok)";
+  const officialTotal =
+    balance?.ok && balance.balances?.length ? (balance.balances[0].total ?? 0) : 0;
+  // 总金额 = 累计充值总额（用户填写）；未填写时回退到官方总余额。
+  // 已用金额 = 充值总额 − 官方总余额；进度条 = 已用占充值总额 %。
+  const totalAmount = stats.recharge_total && stats.recharge_total > 0 ? stats.recharge_total : officialTotal;
+  const usedAmount = Math.max(0, totalAmount - officialTotal);
+  const pct = totalAmount > 0 ? (usedAmount / totalAmount) * 100 : null;
+  const showBar = pct != null;
 
   return (
     <div className="relative shrink-0">
@@ -56,7 +74,7 @@ export function CostChip({
         aria-label="API 费用"
         title={
           showBar
-            ? `今日 ${fmt(stats.today?.cost, currency)} · 预算已用 ${Math.round(pct as number)}%`
+            ? `今日 ${fmt(stats.today?.cost, currency)} · 已用占充值总额 ${Math.round(pct as number)}%`
             : `今日 ${fmt(stats.today?.cost, currency)}`
         }
         data-testid="cost-chip"
@@ -66,7 +84,7 @@ export function CostChip({
             className="block h-full transition-all"
             style={{
               width: showBar ? `${Math.max(pct as number, 4)}%` : "0%",
-              background: barColor,
+              background: BAR_COLOR,
             }}
           />
         </span>
@@ -91,18 +109,15 @@ export function CostChip({
               {showBar && (
                 <div className="pt-1.5 mt-0.5 border-t border-line">
                   <div className="flex items-baseline justify-between text-[11.5px]">
-                    <span className="text-faint">
-                      预算（{stats.budget.period === "day" ? "日" : stats.budget.period === "month" ? "月" : "累计"}）
-                    </span>
+                    <span className="text-faint">已用占充值总额</span>
                     <span className="text-ink tabular-nums">
-                      {fmt(stats.budget.period_cost, currency)} / {fmt(stats.budget.amount, currency)} ·{" "}
-                      {Math.round(pct as number)}%
+                      {fmt(usedAmount, currency)} / {fmt(totalAmount, currency)} · {Math.round(pct as number)}%
                     </span>
                   </div>
                   <div className="mt-1 h-1.5 rounded-full bg-line overflow-hidden">
                     <div
                       className="h-full transition-all"
-                      style={{ width: `${Math.min(pct as number, 100)}%`, background: barColor }}
+                      style={{ width: `${Math.min(pct as number, 100)}%`, background: BAR_COLOR }}
                     />
                   </div>
                 </div>

@@ -261,13 +261,12 @@ def test_metered_provider_records_and_passthrough(tmpdir) -> None:
 _DS_HTML = """
 <html><body>
 <h2>模型与价格</h2>
-<p>DeepSeek 于 2026-08-17 起实行峰谷定价：高峰时段为每日 9:00 与 14:00，其余时间为空闲时段，空闲时段价格为高峰的一半。</p>
+<p>DeepSeek 于 2026-08-17 起实行峰谷定价：高峰时段为北京时间 9:00 - 12:00、14:00 - 18:00（其余为空闲时段）。空闲时段价格为高峰时段价格的一半。</p>
 <table>
-<tr><th>模型</th><th>输入缓存命中</th><th>输入缓存未命中</th><th>输出</th></tr>
-<tr><td>deepseek-v4-flash</td><td>高峰 0.10 元</td><td>高峰 3.00 元</td><td>高峰 9.00 元</td></tr>
-<tr><td>deepseek-v4-flash 空闲</td><td>0.05 元</td><td>1.50 元</td><td>4.50 元</td></tr>
-<tr><td>deepseek-v4-pro</td><td>高峰 0.30 元</td><td>高峰 9.00 元</td><td>高峰 27.00 元</td></tr>
-<tr><td>deepseek-v4-pro 空闲</td><td>0.15 元</td><td>4.50 元</td><td>13.50 元</td></tr>
+<tr><th>模型</th><th>DeepSeek-V4-Flash-0731</th><th>DeepSeek-V4-Pro-0813</th></tr>
+<tr><td>百万tokens输入（缓存命中）</td><td>空闲时段 0.05元</td><td>空闲时段 0.15元</td><td>高峰时段 0.10元</td><td>高峰时段 0.30元</td></tr>
+<tr><td>百万tokens输入（缓存未命中）</td><td>空闲时段 1.5元</td><td>空闲时段 4.5元</td><td>高峰时段 3.0元</td><td>高峰时段 9.0元</td></tr>
+<tr><td>百万tokens输出</td><td>空闲时段 4.5元</td><td>空闲时段 13.5元</td><td>高峰时段 9.0元</td><td>高峰时段 27.0元</td></tr>
 </table>
 </body></html>
 """
@@ -275,10 +274,14 @@ _DS_HTML = """
 
 def test_parse_deepseek_pricing() -> None:
     parsed = parse_deepseek_pricing(_DS_HTML)
-    assert parsed["windows"] is not None
-    assert parsed["models"]["deepseek:deepseek-v4-flash"]["input"] == pytest.approx(3.0)
-    assert parsed["models"]["deepseek:deepseek-v4-flash"]["output"] == pytest.approx(9.0)
-    assert parsed["models"]["deepseek:deepseek-v4-flash"]["cache_read"] == pytest.approx(
-        0.10
-    )
-    assert parsed["models"]["deepseek:deepseek-v4-pro"]["output"] == pytest.approx(27.0)
+    assert parsed["windows"] == [["9:00", "12:00"], ["14:00", "18:00"]]
+    assert parsed.get("multiplier") == 0.5
+    flash = parsed["models"]["deepseek:deepseek-v4-flash"]
+    assert flash["input"] == pytest.approx(3.0)
+    assert flash["output"] == pytest.approx(9.0)
+    assert flash["cache_read"] == pytest.approx(0.10)
+    assert flash["off_peak_prices"]["input"] == pytest.approx(1.5)
+    pro = parsed["models"]["deepseek:deepseek-v4-pro"]
+    assert pro["input"] == pytest.approx(9.0)
+    assert pro["output"] == pytest.approx(27.0)
+    assert pro["cache_read"] == pytest.approx(0.30)

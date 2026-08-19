@@ -242,6 +242,8 @@ _DEFAULT_OFF_PEAK: dict[str, Any] = {
 }
 
 _DEFAULT_SETTINGS: dict[str, Any] = {
+    # 用户填写的累计充值总额（图框分母）。0 = 未设置，前端回退到官方充值余额。
+    "recharge_total": 0.0,
     # Budget in the cost currency. period: "day" | "month" | "total" (all-time).
     "budget": {"amount": 0.0, "currency": "CNY", "period": "month"},
     "off_peak": _DEFAULT_OFF_PEAK,
@@ -491,6 +493,7 @@ class CostMeter:
                 "period_cost": round(period_cost, 6),
                 "used_pct": used_pct,
             },
+            "recharge_total": float(self._settings.get("recharge_total", 0.0) or 0.0),
             "peak": {
                 "now": in_peak_window(
                     datetime.now().timestamp(),
@@ -509,6 +512,7 @@ class CostMeter:
         return {
             "ok": True,
             "settings": {
+                "recharge_total": float(self._settings.get("recharge_total", 0.0) or 0.0),
                 "budget": self._settings["budget"],
                 "off_peak": self._settings["off_peak"],
                 "prices": {
@@ -519,6 +523,13 @@ class CostMeter:
 
     def update_settings(self, patch: dict[str, Any]) -> dict[str, Any]:
         patch = patch or {}
+        if "recharge_total" in patch:
+            try:
+                self._settings["recharge_total"] = max(
+                    0.0, float(patch["recharge_total"] or 0)
+                )
+            except (TypeError, ValueError):
+                pass
         if isinstance(patch.get("budget"), dict):
             self._settings["budget"] = {
                 **self._settings["budget"],
@@ -748,80 +759,82 @@ def _parse_price_token(token: str) -> Optional[float]:
 
 
 def parse_deepseek_pricing(html: str) -> dict[str, Any]:
-    """Best-effort parse of the DeepSeek official pricing page.
+    """Best-effort parse of the DeepSeek official pricing page (2026-08 structure).
 
-    The page (Docusaurus) renders a markdown table per model:
-      | 模型 | 输入缓存命中 | 输入缓存未命中 | 输出 | …
-      | deepseek-v4-flash | 高峰 0.10 | 高峰 3.00 | 高峰 9.00 | 空闲 0.05 | 空闲 1.50 | 空闲 4.50 |
-    Returns {"models": {key: spec}, "windows": [...]|None}.
+    The page lays one table out with TWO model columns (Flash | Pro), each row
+    giving the IDLE then PEAK price per billing class, e.g.:
+      | 百万tokens输入（缓存命中）| 空闲时段 0.05元 0.15元 | 高峰时段 0.10元 0.30元 |
+      | 百万tokens输入（缓存未命中）| 空闲时段 1.5元 4.5元 | 高峰时段 3.0元 9.0元 |
+      | 百万tokens输出 | 空闲时段 4.5元 13.5元 | 高峰时段 9.0元 27.0元 |
+    Model names carry version suffixes ("DeepSeek-V4-Flash-0731"). Peak windows:
+    "高峰时段为北京时间 9:00 - 12:00、14:00 - 18:00（其余为空闲时段）".
+    Returns {"models": {key: PEAK spec}, "windows": [...]|None, "multiplier": 0.5?}.
     """
     text = _strip_html(html)
     result: dict[str, Any] = {"models": {}, "windows": None}
 
-    # Peak windows: look for "高峰时段" followed by times like "09:00" "14:00".
-    win = re.search(r"高峰时段[^。；;]{0,60}?(\d{1,2}[:：]\d{2})[^。；;]{0,30}?(\d{1,2}[:：]\d{2})", text)
-    if win:
+    # Peak windows: every "HH:MM - HH:MM" pair following 高峰时段.
+    pairs = re.findall(
+        r"(\d{1,2})[:：](\d{2})\s*[-~至]\s*(\d{1,2})[:：](\d{2})", text
+    )
+    if pairs:
         result["windows"] = [
-            [win.group(1).replace("：", ":"), win.group(2).replace("：", ":")]
+            [f"{int(a)}:{b}", f"{int(c)}:{d}"] for a, b, c, d in pairs
         ]
 
-    for model_id in ("deepseek-v4-flash", "deepseek-v4-pro"):
-        key = f"deepseek:{model_id}"
-        # Find the table segment for this model, bounded before the next model's
-        # name so the off-peak row's unlabeled cells still belong to this model.
-        m = re.search(
-            re.escape(model_id) + r"(?:(?!deepseek-v4-).){0,900}", text
-        )
-        if not m:
-            continue
-        seg = m.group(0)
-        # Labeled ("高峰"/"空闲") or bare prices. Bare integers (years, context
-        # sizes, model ids like "v4") are dropped: prices carry a decimal point
-        # or an explicit ¥/$/元 marker.
-        nums: list[float] = []
-        for pm in re.finditer(
-            r"(?:高峰|空闲)?\s*([¥$]?\s*\d+(?:\.\d+)?)\s*(?:元)?", seg
-        ):
-            raw = pm.group(1).strip()
-            if "." not in raw and "¥" not in raw and "$" not in raw:
-                continue
-            n = _parse_price_token(raw)
-            if n is not None:
-                nums.append(n)
-        # Expect ≥6 numbers: peak(hit, miss, out) + off-peak(hit, miss, out).
-        if len(nums) < 6:
-            # fall back to a bare 3-number peak row
-            if len(nums) < 3:
-                continue
-            peak = nums[:3]
-            spec = {
-                "cache_read": peak[0],
-                "input": peak[1],
-                "cache_write": peak[1],
-                "output": peak[2],
-                "currency": "CNY",
-            }
-        else:
-            peak = nums[:3]
-            off = nums[3:6]
-            spec = {
-                "cache_read": peak[0],
-                "input": peak[1],
-                "cache_write": peak[1],
-                "output": peak[2],
-                "currency": "CNY",
-                "off_peak_prices": {
-                    "cache_read": off[0],
-                    "input": off[1],
-                    "cache_write": off[1],
-                    "output": off[2],
-                },
-            }
-        result["models"][key] = spec
-
-    # Off-peak multiplier from the page when present ("空闲时段价格为高峰的一半").
-    if re.search(r"空闲[^。]{0,30}?高峰[^。]{0,10}?一半", text):
+    # Off-peak multiplier ("空闲时段价格为高峰时段价格的一半" → 0.5).
+    if re.search(r"空闲[^。]{0,40}?高峰[^。]{0,10}?一半", text):
         result["multiplier"] = 0.5
+
+    # Model names, case-insensitive, version suffixes tolerated ("-0731").
+    # Both names sit in the table HEADER; the price rows below interleave the
+    # two models column by column: Flash at even offsets, Pro at odd offsets.
+    names = [
+        ("deepseek-v4-flash", 0),
+        ("deepseek-v4-pro", 1),
+    ]
+    matches = []
+    for model_id, _col in names:
+        m = re.search(rf"deepseek-v4-{model_id.split('-')[-1]}", text, re.IGNORECASE)
+        if m:
+            matches.append((m.start(), model_id))
+    if not matches:
+        return result
+    table_start = min(s for s, _m in matches)
+    cut = text.find("扣费规则")
+    table_end = cut if cut > table_start else len(text)
+
+    nums: list[float] = []
+    seg = text[table_start:table_end]
+    for pm in re.finditer(r"([¥$]?\s*\d+(?:\.\d+)?)\s*(?:元)?", seg):
+        raw = pm.group(1).strip()
+        if "." not in raw and "¥" not in raw and "$" not in raw:
+            continue
+        n = _parse_price_token(raw)
+        if n is not None:
+            nums.append(n)
+    # Need the 6 values for BOTH models (12 interleaved numbers).
+    if len(nums) < 12:
+        return result
+
+    for model_id, col in names:
+        idx = [col + 2 * k for k in range(6)]
+        vals = [nums[ii] for ii in idx]
+        spec = {
+            "cache_read": vals[1],  # hit_peak
+            "input": vals[3],  # miss_peak
+            "cache_write": vals[3],
+            "output": vals[5],  # out_peak
+            "currency": "CNY",
+            "off_peak_prices": {
+                "cache_read": vals[0],
+                "input": vals[2],
+                "cache_write": vals[2],
+                "output": vals[4],
+            },
+        }
+        result["models"][f"deepseek:{model_id}"] = spec
+
     return result
 
 
