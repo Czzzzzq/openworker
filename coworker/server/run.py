@@ -136,8 +136,44 @@ def _ensure_api_token(port: int) -> Path | None:
     )
 
 
+def _apply_windows_system_proxy() -> None:
+    """Windows: adopt the system/IE proxy (Clash/Mihomo, VPN clients) for SDK HTTP clients.
+
+    urllib reads the registry proxy automatically, but httpx — the google-genai / anthropic
+    SDKs' transport — only honours env vars. In geo-blocked regions a system proxy is the
+    only way Gemini/Claude calls succeed, so export it when nothing is set already. Also
+    exclude localhost so the sidecar's own loopback calls never round-trip the proxy.
+    Best-effort; explicit env vars always win.
+    """
+    if os.environ.get("HTTPS_PROXY") or os.environ.get("HTTP_PROXY"):
+        return
+    if sys.platform != "win32":
+        return
+    try:
+        import winreg
+
+        with winreg.OpenKey(
+            winreg.HKEY_CURRENT_USER,
+            r"Software\Microsoft\Windows\CurrentVersion\Internet Settings",
+        ) as k:
+            enabled, _ = winreg.QueryValueEx(k, "ProxyEnable")
+            server, _ = winreg.QueryValueEx(k, "ProxyServer")
+    except Exception:
+        return
+    if not enabled or not server:
+        return
+    if not str(server).lower().startswith(("http://", "https://")):
+        server = "http://" + str(server)
+    os.environ["HTTP_PROXY"] = str(server)
+    os.environ["HTTPS_PROXY"] = str(server)
+    no_proxy = os.environ.get("NO_PROXY", "")
+    if "127.0.0.1" not in no_proxy and "localhost" not in no_proxy:
+        os.environ["NO_PROXY"] = (no_proxy + ",127.0.0.1,localhost").strip(",")
+
+
 def main(argv=None) -> None:
     _ensure_ca_bundle()
+    _apply_windows_system_proxy()
     cfg = load_config()  # global config supplies defaults
     parser = argparse.ArgumentParser(prog="openworker-server")
     parser.add_argument("--cwd", default=None, help="optional seed/default workspace")

@@ -83,6 +83,7 @@ import { TeamRequestCard } from "./components/TeamRequestCard";
 import { WorkItemsCard } from "./components/WorkItemsCard";
 import { TeamChatView } from "./components/TeamChatView";
 import { WorkspaceTrustPrompt } from "./components/WorkspaceTrustPrompt";
+import { SelectionActions } from "./components/SelectionActions";
 
 const newId = () =>
   (crypto as any).randomUUID ? crypto.randomUUID().slice(0, 12) : Math.random().toString(36).slice(2, 14);
@@ -1124,6 +1125,11 @@ export function App() {
     // The visible model rides along with the message (single source of truth per turn).
     sessionRef.current?.userMessage(text, attachments, model, skill);
     followLatest(); // sending always re-engages stream-following, wherever the user had scrolled
+  };
+  // Selection popup ("plugin"): 询问 OpenWorker — quote the selected text verbatim and send
+  // it as a normal message, so the agent answers about it in the current session.
+  const handleSelectionAction = (text: string) => {
+    send(`请针对下面这段文字回答我的问题：\n\n${text}`);
   };
   // Resolving a LIVE prompt also resolves its parked Inbox mirror server-side, but the polled
   // `sessionInbox` copy stays "pending" for up to a poll cycle — long enough for the docked
@@ -2265,6 +2271,13 @@ export function App() {
           onClose={() => setWorkspaceTrustRequest(null)}
         />
       )}
+
+      {/* Text-selection plugin: a floating 询问 OpenWorker button next to any mouse
+          selection, sending the quoted text through the normal composer path. */}
+      <SelectionActions
+        onAction={handleSelectionAction}
+        disabled={surface !== "session" || !connected || running}
+      />
     </div>
   );
 }
