@@ -15,6 +15,10 @@ setlocal
 cd /d "%~dp0"
 set "COWORKER_STATE_DIR=%~dp0.dev-state"
 
+REM A stale sidecar token breaks the wait below (the file already exists, so Vite can
+REM bake the OLD token while the server writes a new one). Always boot with a fresh file.
+if exist "%COWORKER_STATE_DIR%\sidecar-8765.token" del "%COWORKER_STATE_DIR%\sidecar-8765.token" >nul 2>nul
+
 REM 1) Server needs the model keys to fetch the official balance. Copy the
 REM    desktop app's secret store once (sessions stay separate - dev uses a
 REM    fresh store so it can't clobber the desktop app's data).
@@ -22,7 +26,7 @@ if not exist "%COWORKER_STATE_DIR%\secrets.json" (
     if exist "%USERPROFILE%\AppData\Roaming\coworker\secrets.json" (
         mkdir "%COWORKER_STATE_DIR%" 2>nul
         copy /y "%USERPROFILE%\AppData\Roaming\coworker\secrets.json" "%COWORKER_STATE_DIR%\secrets.json" >nul
-        echo Copied existing model keys into .dev-state (balance will work).
+        echo Copied existing model keys into .dev-state ^(balance will work^).
     )
 )
 

@@ -15,6 +15,7 @@ import re
 import shlex
 import shutil
 import subprocess
+import sys
 import time
 import uuid
 from pathlib import Path
@@ -3429,6 +3430,143 @@ class SessionManager:
             "auto_approve": self.auto_approve(),
             "auto_approve_shadow": self.auto_approve_shadow(),
         }
+    # -- floating icon (悬浮窗插件) ----------------------------------------------
+    # The GUI's composer toggle opens/closes the standalone floating-icon process
+    # (plugins/floating-icon/floating_icon.py). "Close" terminates it (TerminateProcess,
+    # same mechanism the plugin's own --replace uses); "Open" spawns a fresh instance with
+    # pythonw. The process's PID lock + position state live under
+    # %LOCALAPPDATA%\OpenWorker\ (mirroring floating_icon.py), so the icon's right-click
+    # 退出 and this endpoint agree on who's running.
+    _FLOATING_ICON_SUBDIR = ("plugins", "floating-icon", "floating_icon.py")
+
+    @staticmethod
+    def _floating_icon_script() -> Optional[Path]:
+        """The repo's floating-icon plugin script; None when absent (e.g. desktop bundles)."""
+        if sys.platform != "win32":
+            return None
+        # Repo layout: this module lives at <repo>/coworker/server/manager.py.
+        for base in (
+            Path(__file__).resolve().parents[2],
+            Path.cwd(),
+        ):
+            cand = base.joinpath(*SessionManager._FLOATING_ICON_SUBDIR)
+            if cand.is_file():
+                return cand
+        return None
+
+    @staticmethod
+    def _floating_icon_lock_path() -> Path:
+        appdata = os.environ.get("LOCALAPPDATA") or os.path.expanduser("~")
+        return Path(appdata) / "OpenWorker" / "floating-icon.lock"
+
+    @staticmethod
+    def _pid_alive(pid: int) -> bool:
+        """True if a local PID is a live process. Windows uses OpenProcess/GetExitCodeProcess
+        (STILL_ACTIVE); POSIX uses the kill-0 probe."""
+        if not pid or pid <= 0:
+            return False
+        if sys.platform == "win32":
+            import ctypes
+            from ctypes import wintypes
+
+            PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+            STILL_ACTIVE = 259
+            h = ctypes.windll.kernel32.OpenProcess(
+                PROCESS_QUERY_LIMITED_INFORMATION, False, pid
+            )
+            if not h:
+                return False
+            try:
+                code = wintypes.DWORD()
+                if not ctypes.windll.kernel32.GetExitCodeProcess(h, ctypes.byref(code)):
+                    return False
+                return code.value == STILL_ACTIVE
+            finally:
+                ctypes.windll.kernel32.CloseHandle(h)
+        try:
+            os.kill(pid, 0)
+            return True
+        except ProcessLookupError:
+            return False
+        except PermissionError:
+            return True
+
+    def floating_icon_status(self) -> dict[str, Any]:
+        """Is the floating-icon plugin present, and is its process running?"""
+        script = self._floating_icon_script()
+        if script is None:
+            return {"ok": True, "available": False, "running": False}
+        running = False
+        try:
+            pid = int(self._floating_icon_lock_path().read_text(encoding="utf-8").strip())
+            running = self._pid_alive(pid)
+        except Exception:
+            running = False
+        return {"ok": True, "available": True, "running": running}
+
+    def floating_icon_set(self, enabled: bool) -> dict[str, Any]:
+        """Open (spawn) or close (terminate) the floating icon; returns the new status.
+
+        Both operations only act when the current state disagrees, so a duplicate
+        open/close is a cheap no-op. `enabled` mirrors the GUI toggle's pressed state.
+        """
+        status = self.floating_icon_status()
+        if not status["available"]:
+            return {**status, "ok": False, "error": "floating-icon 插件在此安装中不可用"}
+        try:
+            if enabled and not status["running"]:
+                err = self._floating_icon_spawn()
+                if err:
+                    return {**status, "ok": False, "error": err}
+                time.sleep(1.0)  # let the fresh instance boot and write its PID lock
+            elif not enabled and status["running"]:
+                self._floating_icon_kill()
+                time.sleep(0.3)
+        except Exception as e:  # never let a plugin hiccup take the server down
+            return {**status, "ok": False, "error": str(e)}
+        return self.floating_icon_status()
+
+    def _floating_icon_spawn(self) -> Optional[str]:
+        """Launch a fresh floating-icon instance (--replace makes it safe against a stale
+        lock). Returns an error message on failure, None on success."""
+        script = self._floating_icon_script()
+        if script is None:
+            return "floating-icon 插件未找到"
+        exe = shutil.which("pythonw") or shutil.which("python")
+        if not exe:
+            return "未找到 pythonw.exe（请安装 Python 并加入 PATH）"
+        kwargs: dict[str, Any] = {}
+        if os.name == "nt":
+            kwargs["creationflags"] = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+        try:
+            subprocess.Popen(
+                [exe, str(script), "--replace"],
+                cwd=str(script.parent),
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                **kwargs,
+            )
+        except OSError as e:
+            return str(e)
+        return None
+
+    def _floating_icon_kill(self) -> None:
+        """Terminate the running instance by the PID in its lock file (mirrors
+        floating_icon.py's own --replace cleanup)."""
+        try:
+            pid = int(self._floating_icon_lock_path().read_text(encoding="utf-8").strip())
+        except Exception:
+            return
+        try:
+            import ctypes
+
+            PROCESS_TERMINATE = 0x0001
+            h = ctypes.windll.kernel32.OpenProcess(PROCESS_TERMINATE, False, pid)
+            if h:
+                ctypes.windll.kernel32.TerminateProcess(h, 0)
+                ctypes.windll.kernel32.CloseHandle(h)
+        except Exception:
+            pass
 
     # -- PDF attachments / token savings (owner ask, 2026-07-17) ----------------
     DEFAULT_PDF_MAX_PAGES = 20

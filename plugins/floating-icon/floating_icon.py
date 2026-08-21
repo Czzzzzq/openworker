@@ -16,11 +16,12 @@ OpenWorker 悬浮窗
     - 位置自动记忆      : 退出时保存，下次启动恢复
 
 识图（截屏提问）:
-    右键菜单选择「识图 · 截屏提问」，框选屏幕任意区域后自动截图，
-    停留在截图预览界面弹出四个选项：提取文字 / 翻译 / 解答 / 取消。
+    右键菜单选择「识图 · 截屏提问」，进入全屏遮罩截图层：整屏变暗，拖动框选区域时
+    选区处挖洞露出真实画面，并实时显示鼠标屏幕坐标与选区宽高；
+    松开后在屏幕底部弹出无边框悬浮工具栏：提取文字 / 翻译 / 解答 / 退出。
     选择后先用 qwen-vl-max（DashScope）把截图读成文字，再把识别内容
     作为新对话发送给 OpenWorker 后端（agent=chat），由 Qwen3 Max
-    （qwen:qwen3-max）在对话中作答；取消则关闭截图。qwen3-max 为纯
+    （qwen:qwen3-max）在对话中作答；退出则关闭截图。qwen3-max 为纯
     文本模型，对话中携带的是识别文字（配置视觉模型时才会附带截图）。
     需要 OpenWorker 后端已启动（start-dev.bat）且已配置 Qwen/DashScope
     API Key。模型可用环境变量或 floating-icon-config.json 覆盖
@@ -49,7 +50,7 @@ from tkinter import messagebox
 from urllib.parse import urlparse
 
 APP_NAME = "OpenWorker"
-PLUGIN_VERSION = "v4.2"  # 显示在悬停提示中，便于确认运行的是最新版本
+PLUGIN_VERSION = "v4.3"  # 显示在悬停提示中，便于确认运行的是最新版本
 GUI_URL = "http://localhost:1420"  # OpenWorker GUI 地址（vite dev, strictPort=1420）
 def _find_icon():
     """定位 OpenWorker 图标 (surfaces/gui/src-tauri/icons/Square44x44Logo.png)。
@@ -114,7 +115,6 @@ CONVERSATION_LEADS = {
         "给出完整、有条理的回答：\n\n"
     ),
 }
-DISPLAY_MAX = 900  # 截图预览窗口的显示长边上限
 
 SIZE = 44          # 悬浮窗直径（像素，圆形）
 MARGIN = 16        # 默认位置距屏幕边缘的间距
@@ -239,7 +239,23 @@ _WNDPROC = ctypes.WINFUNCTYPE(
     ctypes.c_ssize_t, wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM
 )
 _wndproc_holder = []
-_orig_wndproc = [0]  # 原窗口过程指针（SetWindowLongPtrW 返回值）
+_subclass_originals = {}  # hwnd -> 原窗口过程指针（SetWindowLongPtrW 返回值），按窗口分开保存
+
+
+def _subclass_window(hwnd, handler):
+    """子类化窗口：handler(hwnd, msg, wparam, lparam, orig) -> LRESULT。
+
+    多个窗口各自保存原窗口过程，互不覆盖（悬浮窗圆外穿透、识图 HUD 穿透共用）。
+    """
+    def proc(hwnd, msg, wparam, lparam):
+        return handler(hwnd, msg, wparam, lparam, _subclass_originals.get(hwnd, 0))
+
+    cb = _WNDPROC(proc)
+    _wndproc_holder.append(cb)
+    _subclass_originals[hwnd] = _user32.SetWindowLongPtrW(
+        hwnd, GWLP_WNDPROC, ctypes.cast(cb, ctypes.c_void_p).value
+    )
+    return cb
 
 
 # ---------------------------------------------------------------------------
@@ -446,7 +462,7 @@ def _install_click_through(root, size, hwnd=None):
     radius = size / 2.0
     center = (size - 1) / 2.0
 
-    def proc(hwnd, msg, wparam, lparam):
+    def handler(hwnd, msg, wparam, lparam, orig):
         if msg == WM_NCHITTEST:
             # lParam: 低16位 x, 高16位 y（屏幕坐标，有符号）
             x = ctypes.c_short(lparam & 0xFFFF).value
@@ -456,13 +472,19 @@ def _install_click_through(root, size, hwnd=None):
             dx, dy = (x - rect.left) - center, (y - rect.top) - center
             if dx * dx + dy * dy > radius * radius:
                 return HTTRANSPARENT
-        return _user32.CallWindowProcW(_orig_wndproc[0], hwnd, msg, wparam, lparam)
+        return _user32.CallWindowProcW(orig, hwnd, msg, wparam, lparam)
 
-    cb = _WNDPROC(proc)
-    _wndproc_holder.append(cb)  # 保持回调引用，避免被 GC
-    _orig_wndproc[0] = _user32.SetWindowLongPtrW(
-        hwnd, GWLP_WNDPROC, ctypes.cast(cb, ctypes.c_void_p).value
-    )
+    _subclass_window(hwnd, handler)
+
+
+def _install_pass_through(hwnd):
+    """整窗点击穿透（识图 HUD 用，避免悬浮提示挡住遮罩层的鼠标事件）。"""
+    def handler(hwnd, msg, wparam, lparam, orig):
+        if msg == WM_NCHITTEST:
+            return HTTRANSPARENT
+        return _user32.CallWindowProcW(orig, hwnd, msg, wparam, lparam)
+
+    _subclass_window(hwnd, handler)
 
 
 def _fatal(msg):
@@ -1019,75 +1041,267 @@ def _virtual_screen():
     )
 
 
-def select_region(root):
-    """全屏半透明遮罩框选区域。
+# ---------------------------------------------------------------------------
+# 识图遮罩：全屏半透明黑色遮罩（选区挖洞露出真实画面）+ 实时坐标/选区 HUD + 底部工具栏
+# ---------------------------------------------------------------------------
+MASK_DIM = 0.35       # 遮罩变暗系数（遮罩为黑色、alpha=MASK_DIM*255，35% 黑叠加）
+MASK_BORDER = 2       # 选区边框宽度（像素）
+FRAME_INTERVAL = 0.016  # 遮罩重绘节流（≈60fps）
 
-    返回虚拟屏幕坐标 (left, top, right, bottom)；取消（Esc / 点击无拖动）返回 None。
+
+def _mask_base(w, h):
+    """遮罩底图：整屏黑色半透明（alpha = MASK_DIM*255），挖洞（alpha=0）露出真实屏幕。
+
+    变暗由 DWM 合成时完成（黑色半透明叠加），无需预先把截图逐像素变暗，
+    底图只需生成一次，每次重绘整体拷贝后再挖洞/画边框。
+    """
+    return bytes((0, 0, 0, int(255 * MASK_DIM))) * (w * h)
+
+
+def _poke_hole(buf, w, h, hole):
+    """在遮罩底图上挖出选区（alpha=0 露出真实屏幕）并画青蓝边框。"""
+    x0, y0, x1, y1 = (int(v) for v in hole)
+    x0 = max(0, min(x0, w)); y0 = max(0, min(y0, h))
+    x1 = max(0, min(x1, w)); y1 = max(0, min(y1, h))
+    if x1 - x0 < 1 or y1 - y0 < 1:
+        return
+    cyan = b"\xff\xe5\x00\xff"  # BGRA: #00e5ff
+    hw_ = x1 - x0
+    for y in range(y0, y1):
+        s = (y * w + x0) * 4
+        buf[s:s + hw_ * 4] = b"\x00" * (hw_ * 4)
+        if x0 >= MASK_BORDER:
+            ls = (y * w + x0 - MASK_BORDER) * 4
+            buf[ls:ls + MASK_BORDER * 4] = cyan * MASK_BORDER
+        if x1 <= w - MASK_BORDER:
+            rs = (y * w + x1) * 4
+            buf[rs:rs + MASK_BORDER * 4] = cyan * MASK_BORDER
+    xl = max(0, x0 - MASK_BORDER)
+    xr = min(w, x1 + MASK_BORDER)
+    for y in (y0 - MASK_BORDER, y0 - 1, y1, y1 + 1):
+        if 0 <= y < h:
+            s = (y * w + xl) * 4
+            buf[s:s + (xr - xl) * 4] = cyan * (xr - xl)
+
+
+class _LayeredSurface:
+    """把整块 BGRA 按真 alpha 渲染到窗口（UpdateLayeredWindow），供遮罩反复重绘。"""
+
+    def __init__(self, hwnd, vx, vy, w, h):
+        self.hwnd = hwnd
+        self.pt_dst = _POINT(int(vx), int(vy))
+        self.sz = _SIZE(int(w), int(h))
+        self.pt_src = _POINT(0, 0)
+        self.blend = _BLENDFUNCTION(AC_SRC_OVER, 0, 255, AC_SRC_ALPHA)
+        self.hdc_mem = _gdi32.CreateCompatibleDC(None)
+        bmi = _BITMAPINFO()
+        bmi.bmiHeader.biSize = ctypes.sizeof(_BITMAPINFOHEADER)
+        bmi.bmiHeader.biWidth = w
+        bmi.bmiHeader.biHeight = -h
+        bmi.bmiHeader.biPlanes = 1
+        bmi.bmiHeader.biBitCount = 32
+        bmi.bmiHeader.biCompression = 0
+        self.bits = ctypes.c_void_p()
+        self.hbmp = _gdi32.CreateDIBSection(
+            self.hdc_mem, ctypes.byref(bmi), 0, ctypes.byref(self.bits), None, 0
+        )
+        if not self.hbmp:
+            raise RuntimeError("创建遮罩位图失败")
+        _gdi32.SelectObject(self.hdc_mem, self.hbmp)
+        self._size = w * h * 4
+        ex = _user32.GetWindowLongPtrW(hwnd, GWL_EXSTYLE) or 0
+        _user32.SetWindowLongPtrW(hwnd, GWL_EXSTYLE, ex | WS_EX_LAYERED)
+
+    def render(self, bgra):
+        ctypes.memmove(self.bits, bgra, self._size)
+        hdc_screen = _user32.GetDC(None)
+        try:
+            _user32.UpdateLayeredWindow(
+                self.hwnd, hdc_screen,
+                ctypes.byref(self.pt_dst), ctypes.byref(self.sz),
+                self.hdc_mem, ctypes.byref(self.pt_src),
+                0, ctypes.byref(self.blend), ULW_ALPHA,
+            )
+        finally:
+            _user32.ReleaseDC(None, hdc_screen)
+
+
+def select_region_with_toolbar(root):
+    """识图框选：全屏遮罩（选区挖洞露真实画面）+ 实时坐标/选区 HUD + 底部工具栏。
+
+    返回 (bbox, action)：bbox 为虚拟屏幕坐标 (left, top, right, bottom)，
+    action 为 "extract"/"translate"/"answer"；取消（Esc / 退出 / 点击无拖动）返回 None。
     """
     vx, vy, vw, vh = _virtual_screen()
-    sel = tk.Toplevel(root)
-    sel.overrideredirect(True)
-    sel.configure(bg="#000000")
-    sel.geometry(f"{vw}x{vh}+{int(vx)}+{int(vy)}")
-    sel.attributes("-topmost", True)
-    sel.attributes("-alpha", 0.30)  # 半透明暗色遮罩，仍可看到桌面内容
-    cv = tk.Canvas(sel, bg="#000000", highlightthickness=0, cursor="crosshair")
+    base = _mask_base(vw, vh)
+
+    done = {"out": None}
+    finished = {"yes": False}
+    st = {"x1": 0, "y1": 0, "hole": None, "bbox": None, "locked": False}
+    last_render = [0.0]
+
+    def _close(out):
+        if finished["yes"]:
+            return
+        finished["yes"] = True
+        done["out"] = out
+        for w in (hud, toolbar, mask):
+            try:
+                if w.winfo_exists():
+                    w.destroy()
+            except Exception:
+                pass
+
+    # ---------- 遮罩窗口（事件面 + 真 alpha 全屏渲染） ----------
+    mask = tk.Toplevel(root)
+    mask.overrideredirect(True)
+    mask.configure(bg="#000000")
+    mask.geometry(f"{vw}x{vh}+{int(vx)}+{int(vy)}")
+    mask.attributes("-topmost", True)
+    cv = tk.Canvas(mask, bg="#000000", highlightthickness=0, cursor="crosshair")
     cv.pack(fill="both", expand=True)
+    mask.update_idletasks()
+    top_hwnd = _user32.GetAncestor(mask.winfo_id(), GA_ROOT)
+    surface = _LayeredSurface(top_hwnd, vx, vy, vw, vh)
+    surface.render(base)  # 初始：全屏变暗，无选区
 
-    st = {"x1": 0, "y1": 0, "rect": None, "label": None, "out": None}
+    # ---------- HUD：实时鼠标坐标 + 选区宽高（点击穿透，不挡遮罩鼠标事件） ----------
+    hud = tk.Toplevel(root)
+    hud.overrideredirect(True)
+    hud.attributes("-topmost", True)
+    hud.configure(bg="#1f1f1f")
+    hud_label = tk.Label(
+        hud, text="", bg="#1f1f1f", fg="#e8e8e8",
+        font=("Microsoft YaHei UI", 9), padx=8, pady=4,
+    )
+    hud_label.pack()
+    hud.withdraw()
+    try:
+        _install_pass_through(_user32.GetAncestor(hud.winfo_id(), GA_ROOT))
+    except Exception:
+        pass
 
+    # ---------- 底部工具栏（无边框悬浮窗）：提取文字 / 翻译 / 解答 / 退出 ----------
+    toolbar = tk.Toplevel(root)
+    toolbar.overrideredirect(True)
+    toolbar.attributes("-topmost", True)
+    bar = tk.Frame(toolbar, bg="#1f1f1f", highlightbackground="#555555", highlightthickness=1)
+    bar.pack(fill="both", expand=True)
+
+    def _btn(label, action, color="#3a3a3a"):
+        if action is None:
+            command = lambda: _close(None)
+        else:
+            command = lambda a=action: _close((st["bbox"], a))
+        tk.Button(
+            bar, text=label, command=command,
+            bg=color, fg="#ffffff", activebackground="#4a6ea9", relief="flat",
+            font=("Microsoft YaHei UI", 10), padx=14, pady=4,
+        ).pack(side="left", padx=3, pady=4)
+
+    _btn("提取文字", "extract")
+    _btn("翻译", "translate")
+    _btn("解答", "answer")
+    _btn("退出", None, color="#5a2a2a")
+    toolbar.withdraw()
+    toolbar.bind("<Escape>", lambda e: _close(None))
+
+    # ---------- 遮罩重绘（节流） ----------
+    def _render(force=False):
+        now = time.time()
+        if not force and now - last_render[0] < FRAME_INTERVAL:
+            return
+        last_render[0] = now
+        buf = bytearray(base)
+        if st["hole"] is not None:
+            _poke_hole(buf, vw, vh, st["hole"])
+        surface.render(bytes(buf))
+
+    # ---------- HUD 显示 ----------
+    def _hud_place(x_root, y_root, size):
+        text = f"坐标 {x_root}, {y_root}"
+        if size:
+            text += f"    选区 {size[0]} × {size[1]}"
+        hud_label.config(text=text)
+        hud.update_idletasks()
+        hw_, hh_ = hud.winfo_reqwidth(), hud.winfo_reqheight()
+        x, y = x_root + 16, y_root + 18
+        if x + hw_ > vx + vw - 4:
+            x = x_root - hw_ - 16
+        if y + hh_ > vy + vh - 4:
+            y = y_root - hh_ - 18
+        hud.geometry(f"+{int(x)}+{int(y)}")
+        hud.deiconify()
+        hud.lift()
+
+    # ---------- 鼠标交互 ----------
     def on_press(e):
+        if st["locked"]:
+            return
         st["x1"], st["y1"] = e.x, e.y
-        if st["rect"] is not None:
-            cv.delete(st["rect"])
-        st["rect"] = cv.create_rectangle(
-            e.x, e.y, e.x, e.y, outline="#00e5ff", width=2
-        )
+        st["hole"] = (e.x, e.y, e.x, e.y)
+        _hud_place(e.x_root, e.y_root, (0, 0))
+        _render()
 
     def on_motion(e):
-        if st["rect"] is None:
+        if st["locked"]:
             return
-        cv.coords(st["rect"], st["x1"], st["y1"], e.x, e.y)
-        w = abs(e.x - st["x1"])
-        h = abs(e.y - st["y1"])
-        if st["label"] is None:
-            st["label"] = cv.create_text(
-                e.x + 14, e.y - 20, text="", fill="#ffffff", anchor="w",
-                font=("Microsoft YaHei UI", 10),
-            )
-        else:
-            cv.coords(st["label"], e.x + 14, e.y - 20)
-        cv.itemconfig(st["label"], text=f"{w} × {h}")
-
-    def finish(x2, y2):
-        x1, y1 = st["x1"], st["y1"]
-        if abs(x2 - x1) < 4 or abs(y2 - y1) < 4:
-            st["out"] = None  # 点击无拖动 -> 取消
-        else:
-            l, r = sorted((x1, x2))
-            t, b = sorted((y1, y2))
-            l, r = max(0, l), min(vw, r)
-            t, b = max(0, t), min(vh, b)
-            st["out"] = (
-                (vx + l, vy + t, vx + r, vy + b) if (r - l >= 4 and b - t >= 4) else None
-            )
-        sel.destroy()
+        if st["hole"] is None:
+            _hud_place(e.x_root, e.y_root, None)
+            return
+        x0, y0 = st["x1"], st["y1"]
+        st["hole"] = (min(x0, e.x), min(y0, e.y), max(x0, e.x), max(y0, e.y))
+        _hud_place(e.x_root, e.y_root, (st["hole"][2] - st["hole"][0], st["hole"][3] - st["hole"][1]))
+        _render()
 
     def on_release(e):
-        finish(e.x, e.y)
+        if st["locked"]:
+            return
+        st["locked"] = True
+        hud.withdraw()
+        x0, y0 = st["x1"], st["y1"]
+        if abs(e.x - x0) < 4 or abs(e.y - y0) < 4:
+            _close(None)  # 点击无拖动 -> 取消
+            return
+        l, r = sorted((x0, e.x))
+        t, b = sorted((y0, e.y))
+        l, r = max(0, l), min(vw, r)
+        t, b = max(0, t), min(vh, b)
+        if r - l < 4 or b - t < 4:
+            _close(None)
+            return
+        st["bbox"] = (vx + l, vy + t, vx + r, vy + b)
+        st["hole"] = (l, t, r, b)
+        _render(force=True)
+        _show_toolbar()
 
-    def on_esc(e):
-        st["out"] = None
-        sel.destroy()
+    # ---------- 底部工具栏定位（默认屏幕底部居中，与选区重叠时移到选区下方/上方） ----------
+    def _show_toolbar():
+        toolbar.update_idletasks()
+        tw_, th_ = toolbar.winfo_reqwidth(), toolbar.winfo_reqheight()
+        x = vx + (vw - tw_) // 2
+        y = vy + vh - th_ - 16
+        l, t, r, b = st["bbox"]
+        if not (x + tw_ < l or x > r or y + th_ < t or y > b):
+            if b + 8 + th_ <= vy + vh:
+                y = b + 8
+            else:
+                y = max(vy + 8, t - th_ - 8)
+        toolbar.geometry(f"+{int(x)}+{int(y)}")
+        toolbar.deiconify()
+        toolbar.lift()
+        toolbar.focus_force()
 
     cv.bind("<ButtonPress-1>", on_press)
     cv.bind("<B1-Motion>", on_motion)
+    cv.bind("<Motion>", on_motion)
     cv.bind("<ButtonRelease-1>", on_release)
-    sel.bind("<Escape>", on_esc)
-    sel.focus_force()
-    sel.lift()  # 确保遮罩盖在悬浮窗之上
-    sel.wait_window()  # 模态：阻塞到选取结束（内部仍处理事件）
-    return st["out"]
+    cv.bind("<Escape>", lambda e: _close(None))
+    mask.bind("<Escape>", lambda e: _close(None))
+    mask.focus_force()
+    mask.lift()  # 确保遮罩盖在悬浮窗之上
+    mask.wait_window()  # 模态：阻塞到用户选择（内部仍处理事件）
+    return done["out"]
 
 
 class _ProgressWin:
@@ -1155,73 +1369,20 @@ class _ProgressWin:
             pass
 
 
-def ask_screenshot_action(root, bgra, w, h):
-    """停留显示截图预览，询问下一步操作。
-
-    返回动作键："extract"（提取文字）/ "translate"（翻译）/ "answer"（解答）；
-    选择「取消」或关闭窗口返回 None。
-    """
-    # 用 Tk 原生 subsample（C 速度）缩到显示尺寸，避免大截图时 Python 缩放卡住主线程
-    png = _png_encode_rgb(w, h, _bgra_to_rgb(bgra, w, h))
-    photo = tk.PhotoImage(data=base64.b64encode(png).decode("ascii"))
-    factor = max(1, -(-max(w, h) // DISPLAY_MAX))
-    if factor > 1:
-        photo = photo.subsample(factor, factor)
-
-    win = tk.Toplevel(root)
-    win.title(f"{APP_NAME} · 截图预览")
-    win.attributes("-topmost", True)
-    win.configure(bg="#1e1e1e")
-    tk.Label(win, image=photo, bg="#1e1e1e", bd=1, relief="solid").pack(padx=10, pady=(10, 4))
-    tk.Label(
-        win, text="请选择要执行的操作：", bg="#1e1e1e", fg="#e8e8e8",
-        font=("Microsoft YaHei UI", 10), pady=6,
-    ).pack()
-    bar = tk.Frame(win, bg="#1e1e1e")
-    bar.pack(padx=10, pady=(0, 10))
-
-    result = {"action": None}
-
-    def choose(action):
-        result["action"] = action
-        win.destroy()
-
-    def _btn(label, action, color="#3a3a3a"):
-        tk.Button(
-            bar, text=label, command=lambda: choose(action),
-            bg=color, fg="#ffffff", activebackground="#4a6ea9", relief="flat",
-            font=("Microsoft YaHei UI", 10), padx=16, pady=4,
-        ).pack(side="left", padx=4)
-
-    _btn("提取文字", "extract")
-    _btn("翻译", "translate")
-    _btn("解答", "answer")
-    _btn("取消", None, color="#5a2a2a")
-
-    win.protocol("WM_DELETE_WINDOW", lambda: choose(None))
-    win.lift()
-    win.wait_window()  # 模态：阻塞到用户选择
-    return result["action"]
-
-
 def run_vision_flow(root):
-    """识图主流程：框选 -> 截图 -> 预览选操作 -> qwen-vl-max 预读 -> OpenWorker 新对话（qwen3-max 作答）。"""
-    bbox = select_region(root)
-    if bbox is None:
+    """识图主流程：全屏遮罩框选（实时坐标/选区 HUD + 底部工具栏）-> 截图 -> qwen-vl-max 预读 -> OpenWorker 新对话（qwen3-max 作答）。"""
+    try:
+        result = select_region_with_toolbar(root)
+    except Exception as e:
+        messagebox.showerror(APP_NAME, f"识图启动失败：\n{e}", parent=root)
         return
+    if result is None:
+        return
+    bbox, action = result
     try:
         w, h, bgra = capture_screen_region(bbox)
     except Exception as e:
         messagebox.showerror(APP_NAME, f"截取屏幕失败：\n{e}", parent=root)
-        return
-
-    # 先停留截图预览、询问下一步（任何异常都要可见，不能在 pythonw 下静默）
-    try:
-        action = ask_screenshot_action(root, bgra, w, h)
-    except Exception as e:
-        messagebox.showerror(APP_NAME, f"截图预览失败：\n{e}", parent=root)
-        return
-    if action is None:  # 取消 -> 关闭截图
         return
 
     # 预检：Qwen/DashScope Key 与 OpenWorker 后端

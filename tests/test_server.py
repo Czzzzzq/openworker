@@ -76,6 +76,41 @@ def test_agents_and_memory_rest(tmp_path):
     )
 
 
+# -- floating icon (悬浮窗) -------------------------------------------------------
+
+
+def test_floating_icon_status_shape(tmp_path, monkeypatch):
+    """Composer 悬浮窗开关: GET reports the plugin's availability + running state without
+    ever touching a real %LOCALAPPDATA% lock (pointed at the tmp dir instead)."""
+    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path))
+    client = _client(tmp_path, [])
+    status = client.get("/v1/floating-icon").json()
+    assert status["ok"] is True
+    assert status["available"] in (True, False)  # platform/install dependent
+    assert status["running"] is False  # no lock file exists in the tmp dir
+
+    # Closing while nothing runs is a safe no-op — never spawns, never errors.
+    closed = client.post("/v1/floating-icon", json={"enabled": False}).json()
+    assert closed["ok"] is True
+    assert closed["running"] is False
+
+
+def test_floating_icon_unavailable_is_safe(tmp_path, monkeypatch):
+    """When the plugin isn't shipped with the install, open must refuse (never spawn)."""
+    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path))
+    manager = SessionManager(workspace=tmp_path, provider=ScriptedProvider([]))
+    monkeypatch.setattr(manager, "_floating_icon_script", lambda: None)
+    client = TestClient(create_app(manager))
+
+    status = client.get("/v1/floating-icon").json()
+    assert status == {"ok": True, "available": False, "running": False}
+
+    opened = client.post("/v1/floating-icon", json={"enabled": True}).json()
+    assert opened["ok"] is False
+    assert opened["available"] is False
+    assert opened["error"]
+
+
 def test_disable_persona_archives_its_sessions(tmp_path):
     """Disable = "put this coworker and its history away": the persona's real sessions are
     archived atomically server-side (so its sidebar section disappears with it), internal

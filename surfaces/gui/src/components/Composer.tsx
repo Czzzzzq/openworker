@@ -8,6 +8,7 @@ import { Dropdown, type Option } from "./Dropdown";
 import { Icon } from "./Icon";
 import { Toggle } from "./Toggle";
 import { CostChip } from "./CostChip";
+import { FloatingIconToggle } from "./FloatingIconToggle";
 import {
   cancelDictation,
   getDictationLevel,
@@ -691,6 +692,9 @@ export function Composer(props: Props) {
           {dictationBusy === "Transcribing…" && <span className="text-[12px] text-accent">Transcribing…</span>}
 
           <span className="ml-auto" />
+
+          {/* 悬浮窗开关 — 胶囊按钮，位于 token 用量左边；打开/关闭 floating-icon 插件 */}
+          {!dictation?.recording && <FloatingIconToggle />}
 
           {/* token usage (OPE-42) — a quiet chip; hidden until the server reports usage.
               Shows the context-window fill bar alone (the session total lives in the

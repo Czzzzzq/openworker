@@ -16,6 +16,7 @@ const wsBase = (): string =>
 const apiToken = (): string =>
   (globalThis as any).__COWORKER_API_TOKEN__ ||
   (import.meta as any).env?.VITE_COWORKER_API_TOKEN ||
+  (import.meta as any).env?.VITE_COWORKER_DEV_TOKEN ||
   (typeof __COWORKER_DEV_TOKEN__ === "string" ? __COWORKER_DEV_TOKEN__ : "");
 
 // All local REST calls pass through this module, so a module-local wrapper applies launch
@@ -2505,4 +2506,26 @@ export async function nameCurrentProject(
     body: JSON.stringify({ kind, name }),
   });
   return r.json();
+}
+
+// -- floating icon (悬浮窗) ------------------------------------------------------
+export interface FloatingIconStatus {
+  ok?: boolean;
+  available?: boolean;
+  running?: boolean;
+  error?: string;
+}
+
+export async function getFloatingIconStatus(): Promise<FloatingIconStatus> {
+  const res = await fetch(`${httpBase()}/v1/floating-icon`);
+  return res.json();
+}
+
+export async function setFloatingIcon(enabled: boolean): Promise<FloatingIconStatus> {
+  const res = await fetch(`${httpBase()}/v1/floating-icon`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ enabled }),
+  });
+  return res.json();
 }

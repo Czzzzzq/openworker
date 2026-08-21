@@ -171,7 +171,27 @@ def _apply_windows_system_proxy() -> None:
         os.environ["NO_PROXY"] = (no_proxy + ",127.0.0.1,localhost").strip(",")
 
 
+def _pin_msix_state_dir() -> None:
+    """Microsoft Store Python is MSIX-packaged: its writes under %APPDATA% are
+    redirected into the package's LocalCache, invisible to non-packaged processes —
+    Node/Vite reads the launch-token file there and gets nothing, so every GUI API
+    call 401s, and the server's own store is a hidden, throwaway copy. start-dev.bat
+    sidesteps this with COWORKER_STATE_DIR=<repo>/.dev-state; a bare `openworker-server`
+    run hits it. Detect the Store interpreter and pin the same repo-local dir so a raw
+    command behaves identically: one stable, visible store (and one token file).
+    """
+    if os.environ.get("COWORKER_STATE_DIR") or os.environ.get("COWORKER_API_TOKEN"):
+        return  # explicit override, or the desktop shell (in-memory token, own state)
+    # The venv shim keeps sys.executable at .venv, so detect the STORE interpreter via the
+    # base prefix (or the stdlib, same place): that's what the OS treats as MSIX-packaged.
+    if sys.platform != "win32" or "WindowsApps" not in str(sys.base_prefix):
+        return
+    repo = Path(__file__).resolve().parents[2]  # coworker/server/run.py -> repo root
+    os.environ["COWORKER_STATE_DIR"] = str(repo / ".dev-state")
+
+
 def main(argv=None) -> None:
+    _pin_msix_state_dir()
     _ensure_ca_bundle()
     _apply_windows_system_proxy()
     cfg = load_config()  # global config supplies defaults

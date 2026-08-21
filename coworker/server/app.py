@@ -1949,6 +1949,17 @@ def create_app(manager: SessionManager) -> FastAPI:
 
         return inspect(str((body or {}).get("data_url", "")))
 
+    # -- floating icon (悬浮窗) ---------------------------------------------------
+    @app.get("/v1/floating-icon")
+    def floating_icon_status() -> dict[str, Any]:
+        # Composer toggle: is the floating-icon plugin present, and is it running?
+        return manager.floating_icon_status()
+
+    @app.post("/v1/floating-icon")
+    def floating_icon_set(body: dict) -> dict[str, Any]:
+        # enabled=True spawns the icon (if not running); False terminates it.
+        return manager.floating_icon_set(bool((body or {}).get("enabled")))
+
     # -- direct-message routing -------------------------------------------------
     @app.get("/v1/messaging/dm-route")
     def dm_route_get() -> dict[str, Any]:
