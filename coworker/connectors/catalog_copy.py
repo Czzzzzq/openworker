@@ -22,6 +22,9 @@ ABOUT: dict[str, str] = {
     "email": "Read, search, and send mail on any IMAP account — Gmail, iCloud, "
     "Fastmail, or your own server — using an app password instead of your "
     "account password.",
+    "feishu": "Bring your coworker into Feishu through a native bot long connection. "
+    "DM it or @mention it in a group, and replies stay attached to the message "
+    "that started the work.",
     "gmail": "Search, summarize, and send over your Gmail. Multiple accounts "
     "connect side by side, and privacy filters can hide chosen senders or "
     "labels from agents entirely.",
@@ -69,6 +72,13 @@ ACCESS: dict[str, list[str]] = {
         "Posts messages and uploads files as the bot.",
         "Reads files shared in those channels.",
         "Reads member and channel names to resolve who's talking.",
+    ],
+    "feishu": [
+        "Reads messages sent directly to the bot and group messages that @mention it.",
+        "When @mentioned in a group, reads up to 200 member names and open_ids to answer with the member list.",
+        "Replies as the bot in the originating chat or thread.",
+        "Only senders on your local allow-list are routed to an agent.",
+        "Uses a Feishu long connection — no public webhook endpoint is required.",
     ],
     "email": [
         "Reads and searches mail over IMAP.",

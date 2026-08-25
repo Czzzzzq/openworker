@@ -1942,6 +1942,27 @@ def create_app(manager: SessionManager) -> FastAPI:
             model=b.get("compaction_model"),
         )
 
+    # -- local API cost meter ---------------------------------------------------
+    @app.get("/v1/cost/stats")
+    def cost_stats(session_id: Optional[str] = None) -> dict[str, Any]:
+        return manager.cost_meter.stats(session_id)
+
+    @app.get("/v1/cost/balance")
+    def cost_balance() -> dict[str, Any]:
+        return manager.cost_meter.balance()
+
+    @app.get("/v1/cost/settings")
+    def cost_settings_get() -> dict[str, Any]:
+        return manager.cost_meter.get_settings()
+
+    @app.post("/v1/cost/settings")
+    def cost_settings_update(body: dict) -> dict[str, Any]:
+        return manager.cost_meter.update_settings(body or {})
+
+    @app.post("/v1/cost/sync")
+    def cost_prices_sync() -> dict[str, Any]:
+        return manager.cost_meter.sync_prices()
+
     @app.post("/v1/attachments/inspect-pdf")
     def attachments_inspect_pdf(body: dict) -> dict[str, Any]:
         # Attach-time page/size probe for the composer's threshold check. Local only.

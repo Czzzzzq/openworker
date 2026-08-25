@@ -441,6 +441,10 @@ def make_adapter(
     """
     if platform == "telegram" and profile.get("bot_token"):
         return TelegramAdapter(profile["bot_token"])
+    if platform == "feishu" and profile.get("app_id") and profile.get("app_secret"):
+        from .feishu import FeishuAdapter
+
+        return FeishuAdapter(profile["app_id"], profile["app_secret"])
     if platform == "slack":
         if profile.get("mode") == "relay":
             if not (relay_url and token_provider):

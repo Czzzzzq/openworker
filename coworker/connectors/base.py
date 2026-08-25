@@ -95,6 +95,10 @@ class MessageEvent:
     # The bot itself was @-mentioned (UX-DECISIONS §31 mention router). Computed from the RAW
     # platform text at mapping time — mention tokens are rewritten for display afterwards.
     mentions_me: bool = False
+    # Trusted metadata added by the connector for the model only. Keep it out of
+    # ``text`` so the inbound message card continues to show exactly what the
+    # human sent.
+    connector_context: Optional[str] = None
 
     def tagged_text(self) -> str:
         """How the message enters the super-agent thread: source + reply handle + text.
@@ -104,7 +108,10 @@ class MessageEvent:
         """
         if self.source.platform == "gui":
             return f"[Owner, in the app]: {self.text}"
-        return f"[{self.source.label()} | reply→{self.source.target}]: {self.text}"
+        tagged = f"[{self.source.label()} | reply→{self.source.target}]: {self.text}"
+        if self.connector_context:
+            return f"{tagged}\n\n[Connector-provided context]\n{self.connector_context}"
+        return tagged
 
 
 @dataclass

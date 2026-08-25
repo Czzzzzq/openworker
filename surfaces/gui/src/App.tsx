@@ -1763,6 +1763,7 @@ export function App() {
         <SettingsView
           key={settingsTab}
           initialTab={settingsTab}
+          sessionId={sessionId}
           onOpenPersona={(id) => openPersona(id, "settings")}
           onCreateSkill={(description) => {
             // The Skills doorway (SKILLS-SPEC §5.2): creation is a conversation. Fresh

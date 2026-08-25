@@ -4974,16 +4974,16 @@ class SessionManager:
         )
         if task.notify_target:
             from ..connectors.base import parse_target
-            from ..connectors.senders import DEFAULT_SENDERS
+            from ..connectors.senders import DEFAULT_SENDERS, sender_credentials
 
             try:
                 platform, chat_id, thread = parse_target(task.notify_target)
                 sender = DEFAULT_SENDERS.get(platform)
-                creds = self.secrets.get(f"{platform}:default") or {}
-                if sender and creds.get("bot_token"):
+                credentials = sender_credentials(self.secrets, platform, chat_id)
+                if sender and credentials:
                     await asyncio.to_thread(
                         sender,
-                        creds["bot_token"],
+                        credentials,
                         chat_id,
                         f"✓ {task.title}\n\n{summary}",
                         thread,

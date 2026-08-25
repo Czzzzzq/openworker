@@ -181,6 +181,14 @@ const HunterLogo = strokeLogo(
   </>,
 );
 
+const FeishuLogo: LogoComponent = () => (
+  <svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" aria-hidden="true">
+    <path d="M7.2 4.2 11 8l-2.2 2.2L5 6.4z" fill="currentColor" opacity=".72" />
+    <path d="m16.8 4.2-7.6 7.6a3.1 3.1 0 0 0 4.4 4.4l5.4-5.4-2.2-2.2-5.4 5.4-.9-.9 8.5-8.5z" fill="currentColor" />
+    <path d="m7.2 19.8 4-4-2.2-2.2-4 4z" fill="currentColor" opacity=".72" />
+  </svg>
+);
+
 const PlugLogo = strokeLogo(
   <>
     <path d="M9 7V3M15 7V3M7 7h10v4a5 5 0 0 1-10 0V7zM12 16v5" />
@@ -232,6 +240,7 @@ export const CONNECTORS: Record<string, ConnectorRegistryEntry> = {
   amplitude: { label: "Amplitude", logo: AmplitudeLogo },
   apollo: { label: "Apollo.io", logo: ApolloLogo },
   hunter: { label: "Hunter", logo: HunterLogo },
+  feishu: { label: "Feishu", logo: FeishuLogo },
   // Non-brand utilities.
   email: { label: "Email", logo: EmailLogo },
   browser: { label: "Browser", logo: BrowserLogo },

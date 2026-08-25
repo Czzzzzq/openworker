@@ -15,14 +15,20 @@ import aisuite as ai
 
 from ..secrets import SecretStore
 from .base import parse_target
-from .senders import DEFAULT_FILE_SENDERS, DEFAULT_SENDERS, FileSender, Sender
+from .senders import (
+    DEFAULT_FILE_SENDERS,
+    DEFAULT_SENDERS,
+    FileSender,
+    Sender,
+    sender_credentials,
+)
 
 _SCHEMA = {
     "type": "function",
     "function": {
         "name": "send_message",
         "description": (
-            "Send a message to a connected chat (Slack or Telegram). `target` is the "
+            "Send a message to a connected chat (Slack, Telegram, or Feishu). `target` is the "
             "reply handle from an inbound message (e.g. 'telegram:12345' or 'slack:C0123', "
             "optionally with a ':<thread>' suffix) — or, for Slack, just the channel NAME "
             "('#general' or 'general'; resolved against the connected workspaces). Use this to "
@@ -112,25 +118,6 @@ def _resolve_slack_channel(
     return chat_id, None
 
 
-def _resolve_token(secrets: SecretStore, platform: str, chat_id: str) -> Optional[str]:
-    """Pick the outbound token for a reply.
-
-    Managed Slack relay is multi-workspace: a team-qualified chat_id ("T…/C…")
-    selects that team's bot token from its `slack:team:<team_id>` profile. Manual
-    Socket-Mode (single workspace, bare "C…") uses `slack:default`. Non-Slack
-    platforms always use `<platform>:default`.
-    """
-    if platform == "slack":
-        from .slack_addr import split
-
-        team, _channel = split(chat_id)
-        if team:
-            per_team = secrets.get(f"slack:team:{team}") or {}
-            return per_team.get("bot_token")
-    creds = secrets.get(f"{platform}:default") or {}
-    return creds.get("bot_token")
-
-
 def make_send_message_tool(
     secrets: SecretStore,
     *,
@@ -152,14 +139,14 @@ def make_send_message_tool(
             chat_id, err = _resolve_slack_channel(secrets, chat_id)
             if err:
                 return {"error": err}
-        token = _resolve_token(secrets, platform, chat_id)
-        if not token:
-            return {"error": f"no bot token for {platform} — connect it first"}
+        credentials = sender_credentials(secrets, platform, chat_id)
+        if not credentials:
+            return {"error": f"no credentials for {platform} — connect it first"}
         if platform == "slack":
             from .attribution import sender_prefix
 
             text = sender_prefix(secrets, chat_id) + text
-        result = sender(token, chat_id, text, thread_id)
+        result = sender(credentials, chat_id, text, thread_id)
         if result.ok:
             return {"ok": True, "message_id": result.message_id, "target": target}
         return {"error": result.error or "send failed"}
@@ -305,7 +292,7 @@ def make_send_file_tool(
             return {
                 "error": "path is outside the folders this session can access (or missing)"
             }
-        token = _resolve_token(secrets, platform, chat_id)
+        token = sender_credentials(secrets, platform, chat_id)
         if not token:
             return {"error": f"no bot token for {platform} — connect it first"}
         if as_screenshot:

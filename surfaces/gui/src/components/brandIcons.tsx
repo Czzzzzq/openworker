@@ -119,6 +119,17 @@ function Telegram({ s }: { s: number }) {
   );
 }
 
+function Feishu({ s }: { s: number }) {
+  return (
+    <svg width={s} height={s} viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="2" y="2" width="20" height="20" rx="5" fill="#3370FF" />
+      <path d="M7.2 4.8 11 8.6l-2.2 2.2L5 7z" fill="#67E5B8" />
+      <path d="m16.8 4.8-7.6 7.6a3.1 3.1 0 0 0 4.4 4.4l5.4-5.4-2.2-2.2-5.4 5.4-.9-.9 8.5-8.5z" fill="#fff" />
+      <path d="m7.2 19.2 4-4L9 13l-4 4z" fill="#FFC60A" />
+    </svg>
+  );
+}
+
 const MARKS: Record<string, (p: { s: number }) => JSX.Element> = {
   gmail: Gmail,
   google_calendar: GoogleCalendar,
@@ -131,6 +142,7 @@ const MARKS: Record<string, (p: { s: number }) => JSX.Element> = {
   pagerduty: PagerDuty,
   github: GitHub,
   telegram: Telegram,
+  feishu: Feishu,
 };
 
 export function hasBrandIcon(name: string): boolean {

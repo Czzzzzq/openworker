@@ -40,6 +40,7 @@ import {
 import { useThemePref } from "../theme";
 import { Icon } from "./Icon";
 import { PanelHead } from "./IntegrationsView";
+import { CostView } from "./CostView";
 import { ModelsTab } from "./ManageTabs";
 import { MemorySection } from "./MemorySection";
 import { PersonasTab } from "./PersonasTab";
@@ -53,7 +54,7 @@ import { showPersonas } from "../flags";
 // Models + Personas host the existing tab components inside the page shell (field re-skin to follow).
 // "appearance" is the General tab's stable key — callers deep-link with it, so the
 // rename (UX-021) changed only the label. "files" folded into General as a card.
-type SetTab = "appearance" | "models" | "context" | "skills" | "voice" | "memory" | "personas";
+type SetTab = "appearance" | "models" | "context" | "skills" | "voice" | "memory" | "cost" | "personas";
 
 const CARD = "rounded-xl2 border border-line bg-panel";
 const FIELD_LABEL = "text-[13px] font-medium text-ink";
@@ -67,7 +68,7 @@ const BTN_BORDERED =
 const SET_TABS: {
   key: SetTab;
   label: string;
-  icon: "sliders" | "code" | "mic" | "archive" | "sparkle" | "book" | "refresh";
+  icon: "sliders" | "code" | "mic" | "archive" | "sparkle" | "book" | "refresh" | "audit";
 }[] = [
   { key: "appearance", label: "General", icon: "sliders" },
   { key: "models", label: "Models", icon: "code" },
@@ -75,15 +76,18 @@ const SET_TABS: {
   { key: "skills", label: "Skills", icon: "book" },
   { key: "voice", label: "Voice input", icon: "mic" },
   { key: "memory", label: "Memory", icon: "archive" },
+  { key: "cost", label: "费用", icon: "audit" },
   { key: "personas", label: "Coworkers", icon: "sparkle" },
 ];
 
 export function SettingsView({
   initialTab,
+  sessionId,
   onOpenPersona,
   onCreateSkill,
 }: {
   initialTab?: SetTab;
+  sessionId?: string;
   onOpenPersona?: (id: string) => void;
   // Skills doorway (SKILLS-SPEC §5.2): start a new conversation with the description
   // prefilled — the worker builds the skill and proposes it via save_skill.
@@ -147,6 +151,11 @@ export function SettingsView({
             <VoiceInputSection />
           ) : tab === "memory" ? (
             <MemorySection />
+          ) : tab === "cost" ? (
+            <section>
+              <PanelHead title="费用" sub="查看本地 API 用量、官方余额和峰谷计价设置。" />
+              <CostView sessionId={sessionId} />
+            </section>
           ) : (
             <PersonasSection onOpenPersona={onOpenPersona} />
           )}

@@ -34,6 +34,15 @@ describe("ConnectorIcon", () => {
     expect(el.style.getPropertyValue("--brand")).toBe("#6b7280");
   });
 
+  it("renders the native Feishu mark from the registry", () => {
+    const { container } = render(
+      <ConnectorIcon connector={{ logo: "feishu", brand_color: "#3370ff" }} />,
+    );
+    const el = container.querySelector("[data-logo]") as HTMLElement;
+    expect(el.getAttribute("data-logo")).toBe("feishu");
+    expect(el.querySelector("svg")).not.toBeNull();
+  });
+
   it("flags near-black marks so dark-mode CSS can compensate", () => {
     // GitHub / Notion near-black → flagged; HubSpot orange → not.
     expect(isDarkMark("#1f2328")).toBe(true);

@@ -12,13 +12,40 @@ tests inject fakes — no network.
 from __future__ import annotations
 
 import os
-from typing import Callable, Optional
+from typing import TYPE_CHECKING, Any, Callable, Optional
 
 from .base import SendResult
+from .feishu import send_feishu
 
-Sender = Callable[[str, str, str, Optional[str]], SendResult]
+if TYPE_CHECKING:
+    from ..secrets import SecretStore
+
+
+Sender = Callable[[Any, str, str, Optional[str]], SendResult]
 
 _TIMEOUT = 30.0
+
+
+def sender_credentials(
+    secrets: "SecretStore", platform: str, chat_id: str
+) -> Any:
+    """Resolve the platform-specific credential bundle for an outbound send."""
+    if platform == "slack":
+        from .slack_addr import split
+
+        team, _channel = split(chat_id)
+        if team:
+            profile = secrets.get(f"slack:team:{team}") or {}
+            return profile.get("bot_token")
+    profile = secrets.get(f"{platform}:default") or {}
+    if platform == "feishu":
+        if profile.get("app_id") and profile.get("app_secret"):
+            return {
+                "app_id": profile["app_id"],
+                "app_secret": profile["app_secret"],
+            }
+        return None
+    return profile.get("bot_token")
 
 
 def _slack_api_base() -> str:
@@ -141,6 +168,7 @@ def _send_slack_interactive(
 DEFAULT_SENDERS: dict[str, Sender] = {
     "telegram": _send_telegram,
     "slack": _send_slack,
+    "feishu": send_feishu,
 }
 
 

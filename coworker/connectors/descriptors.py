@@ -137,6 +137,12 @@ def _validate_slack(creds: dict) -> ValidationResult:
     return ValidationResult(False, error=data.get("error") or "invalid bot token")
 
 
+def _validate_feishu(creds: dict) -> ValidationResult:
+    from .feishu import validate_feishu
+
+    return validate_feishu(creds)
+
+
 def _validate_whoami(
     method: str,
     url: str,
@@ -487,6 +493,40 @@ DESCRIPTORS: list[ConnectorDescriptor] = [
             "Paste both tokens below and Connect, then invite the bot to a channel or DM it.",
         ],
         validate=_validate_slack,
+    ),
+    ConnectorDescriptor(
+        name="feishu",
+        title="Feishu",
+        icon="飞",
+        blurb="Two-way messaging through a native Feishu bot long connection.",
+        auth="app_credentials",
+        two_way=True,
+        channels=True,
+        brand_color="#3370ff",
+        logo="feishu",
+        aliases=("lark", "飞书", "bot", "chat"),
+        fields=[
+            Field(
+                "app_id",
+                "App ID",
+                placeholder="cli_…",
+                help="From Feishu Open Platform → Credentials & Basic Info.",
+            ),
+            Field(
+                "app_secret",
+                "App Secret",
+                secret=True,
+                help="From Feishu Open Platform → Credentials & Basic Info.",
+            ),
+            _ALLOWED_FIELD,
+        ],
+        instructions=[
+            "Create a custom app in the Feishu Open Platform and enable the Bot capability.",
+            "Add im:message, im:message:send_as_bot, and im:chat:readonly permissions, then publish the app to your tenant.",
+            "In Events & Callbacks, choose long connection and subscribe to im.message.receive_v1.",
+            "Paste the App ID and App Secret below. In a group, @mentioning the bot replies with member names and open_ids; then use Capture to allow your open_id.",
+        ],
+        validate=_validate_feishu,
     ),
     ConnectorDescriptor(
         name="email",

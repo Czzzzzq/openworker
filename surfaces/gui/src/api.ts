@@ -63,6 +63,95 @@ export async function getHealth(): Promise<Health> {
   return res.json();
 }
 
+export interface CostStats {
+  ok: boolean;
+  today: { cost: number; calls: number };
+  total: { cost: number; calls: number };
+  session: { cost: number; calls: number } | null;
+  by_day: Array<{ day: string; cost: number; calls: number }>;
+  by_model: Array<{
+    model: string;
+    input: number;
+    output: number;
+    cache_read: number;
+    cache_write: number;
+    cost: number;
+    calls: number;
+    currency: string;
+    priced: boolean;
+  }>;
+  budget: {
+    amount: number;
+    currency: string;
+    period: string;
+    period_cost: number;
+    used_pct: number | null;
+  };
+  recharge_total: number;
+  peak: {
+    now: boolean;
+    windows: Array<[string, string]>;
+    tz: string;
+    multiplier: number;
+    enabled: boolean;
+  };
+}
+
+export interface CostBalance {
+  ok: boolean;
+  provider: string;
+  is_available?: boolean;
+  balances?: Array<{
+    currency: string;
+    total: number;
+    granted: number;
+    topped_up: number;
+  }>;
+  error?: string;
+}
+
+export interface CostSettings {
+  ok: boolean;
+  settings: {
+    recharge_total: number;
+    budget: { amount: number; currency: string; period: string };
+    off_peak: {
+      enabled: boolean;
+      windows: Array<[string, string]>;
+      tz: string;
+      multiplier: number;
+    };
+    prices: Record<string, Record<string, unknown>>;
+  };
+}
+
+export async function getCostStats(sessionId?: string): Promise<CostStats> {
+  const query = sessionId ? `?session_id=${encodeURIComponent(sessionId)}` : "";
+  const res = await fetch(`${httpBase()}/v1/cost/stats${query}`);
+  return res.json();
+}
+
+export async function getCostBalance(): Promise<CostBalance> {
+  const res = await fetch(`${httpBase()}/v1/cost/balance`);
+  return res.json();
+}
+
+export async function getCostSettings(): Promise<CostSettings> {
+  const res = await fetch(`${httpBase()}/v1/cost/settings`);
+  return res.json();
+}
+
+export async function saveCostSettings(
+  patch: Partial<CostSettings["settings"]>,
+): Promise<CostSettings> {
+  const res = await fetch(`${httpBase()}/v1/cost/settings`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(patch),
+  });
+  return res.json();
+}
+
 export async function getRecentWorkspaces(): Promise<RecentWorkspace[]> {
   const res = await fetch(`${httpBase()}/v1/workspaces/recent`);
   return (await res.json()).workspaces ?? [];
