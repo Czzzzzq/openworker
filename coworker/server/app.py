@@ -1257,6 +1257,33 @@ def create_app(manager: SessionManager) -> FastAPI:
     def connectors_list() -> dict[str, Any]:
         return {"connectors": manager.list_connectors()}
 
+    def _qr_response(result: dict[str, Any]):
+        if result.get("ok"):
+            return result
+        return JSONResponse(result, status_code=400)
+
+    @app.post("/v1/connectors/{name}/qr-sessions")
+    async def connector_qr_start(name: str):
+        return _qr_response(await manager.start_connector_qr_session(name))
+
+    @app.get("/v1/connectors/{name}/qr-sessions/{session_id}")
+    def connector_qr_status(name: str, session_id: str):
+        return _qr_response(manager.connector_qr_session(name, session_id))
+
+    @app.post("/v1/connectors/{name}/qr-sessions/{session_id}/verify")
+    def connector_qr_verify(name: str, session_id: str, body: dict):
+        return _qr_response(
+            manager.verify_connector_qr_session(
+                name, session_id, str((body or {}).get("code") or "")
+            )
+        )
+
+    @app.delete("/v1/connectors/{name}/qr-sessions/{session_id}")
+    async def connector_qr_cancel(name: str, session_id: str):
+        return _qr_response(
+            await manager.cancel_connector_qr_session(name, session_id)
+        )
+
     async def _refresh_listeners_if_two_way(name: str) -> None:
         # New/removed creds only take effect when the platform socket reconnects (Socket Mode
         # authenticates at connect time) — hot-reload the listeners in-process so pasting
@@ -1304,11 +1331,15 @@ def create_app(manager: SessionManager) -> FastAPI:
         from .. import cloud
         from ..config import load_config
 
+        if name == "weixin":
+            await manager.cancel_connector_qr_sessions(name)
         await asyncio.to_thread(
             lambda: cloud.cloud_disconnect(manager.secrets, load_config(), name)
         )
         result = manager.disconnect_connector(name)
         await _refresh_listeners_if_two_way(name)
+        if name == "weixin":
+            manager.clear_weixin_runtime()
         return result
 
     @app.post("/v1/connectors/slack/workspaces/{team_id}/disconnect")

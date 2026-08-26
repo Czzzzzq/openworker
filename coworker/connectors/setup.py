@@ -32,6 +32,11 @@ def _profile_connected(descriptor, profile: dict[str, Any]) -> bool:
         return False
     if descriptor.auth == "none":
         return True
+    if descriptor.auth == "qr":
+        return all(
+            profile.get(key)
+            for key in ("bot_token", "ilink_bot_id", "ilink_user_id", "base_url")
+        )
     # Managed relay (e.g. Slack cloud relay) carries no manual credential in the
     # :default profile — the tokens live per-team (slack:team:*). The relay-mode
     # flag is what marks it connected, so don't require the manual fields.
@@ -314,6 +319,8 @@ def connect_connector(
     d = get_descriptor(name)
     if d is None or not d.available:
         return {"ok": False, "error": "unknown or unavailable connector"}
+    if d.auth == "qr":
+        return {"ok": False, "error": "use the connector QR sign-in flow"}
     if d.experimental:
         if not experimental_enabled(secrets):
             return {"ok": False, "error": "experimental connectors are disabled"}

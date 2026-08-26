@@ -28,7 +28,7 @@ _SCHEMA = {
     "function": {
         "name": "send_message",
         "description": (
-            "Send a message to a connected chat (Slack, Telegram, or Feishu). `target` is the "
+            "Send a message to a connected chat (Slack, Telegram, Feishu, or Weixin). `target` is the "
             "reply handle from an inbound message (e.g. 'telegram:12345' or 'slack:C0123', "
             "optionally with a ':<thread>' suffix) — or, for Slack, just the channel NAME "
             "('#general' or 'general'; resolved against the connected workspaces). Use this to "
@@ -39,7 +39,7 @@ _SCHEMA = {
             "properties": {
                 "target": {
                     "type": "string",
-                    "description": "Destination handle 'platform:chat_id[:thread]', e.g. 'telegram:12345'.",
+                    "description": "Destination handle 'platform:chat_id[:thread]', e.g. 'telegram:12345' or 'weixin:user@im.wechat'.",
                 },
                 "text": {"type": "string", "description": "The message text to send."},
             },

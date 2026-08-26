@@ -8,6 +8,7 @@ super-agent runner, wired in the next increment). Outbound replies go through th
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from asyncio import to_thread
 from collections import OrderedDict
@@ -29,6 +30,7 @@ from .config import ConnectorSettings, is_authorized, load_settings
 logger = logging.getLogger("coworker.connectors")
 
 _RECENT_CAP = 20  # most-recent distinct senders kept for chat-ID auto-capture
+_CONNECT_TIMEOUT = 45.0
 
 
 class Gateway:
@@ -168,19 +170,42 @@ class Gateway:
 
     async def start(self) -> list[str]:
         """Connect every enabled+registered adapter. Returns the platforms that came up."""
-        live: list[str] = []
+        pending: list[tuple[str, BasePlatformAdapter]] = []
         for platform, settings in self.settings.items():
             if not settings.enabled:
                 continue
             adapter = self._adapters.get(platform)
             if adapter is None:
                 continue
+            pending.append((platform, adapter))
+
+        async def _connect(
+            platform: str, adapter: BasePlatformAdapter
+        ) -> Optional[str]:
             try:
-                if await adapter.connect():
-                    live.append(platform)
+                if await asyncio.wait_for(
+                    adapter.connect(), timeout=_CONNECT_TIMEOUT
+                ):
+                    return platform
+            except asyncio.TimeoutError:
+                logger.error(
+                    "timed out connecting %s adapter after %.0fs",
+                    platform,
+                    _CONNECT_TIMEOUT,
+                )
             except Exception:  # bad token / network — skip, don't break the server
                 logger.exception("failed to connect %s adapter", platform)
-        return live
+            return None
+
+        # Platform connections are independent. Starting them serially allowed a
+        # stalled SDK (notably Feishu reconnect) to prevent every later listener
+        # from ever starting, even though the API still reported saved profiles as
+        # connected. Preserve descriptor order in the returned list while running
+        # each handshake concurrently and bounding it independently.
+        results = await asyncio.gather(
+            *(_connect(platform, adapter) for platform, adapter in pending)
+        )
+        return [platform for platform in results if platform is not None]
 
     async def stop(self) -> None:
         for adapter in self._adapters.values():

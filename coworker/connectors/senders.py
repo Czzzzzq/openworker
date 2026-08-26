@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Any, Callable, Optional
 
 from .base import SendResult
 from .feishu import send_feishu
+from .weixin import send_weixin, weixin_state_path
 
 if TYPE_CHECKING:
     from ..secrets import SecretStore
@@ -43,6 +44,17 @@ def sender_credentials(
             return {
                 "app_id": profile["app_id"],
                 "app_secret": profile["app_secret"],
+            }
+        return None
+    if platform == "weixin":
+        required = ("bot_token", "ilink_bot_id", "ilink_user_id", "base_url")
+        if all(profile.get(key) for key in required):
+            return {
+                "bot_token": profile["bot_token"],
+                "ilink_bot_id": profile["ilink_bot_id"],
+                "ilink_user_id": profile["ilink_user_id"],
+                "base_url": profile["base_url"],
+                "state_path": str(weixin_state_path(secrets)),
             }
         return None
     return profile.get("bot_token")
@@ -169,6 +181,7 @@ DEFAULT_SENDERS: dict[str, Sender] = {
     "telegram": _send_telegram,
     "slack": _send_slack,
     "feishu": send_feishu,
+    "weixin": send_weixin,
 }
 
 

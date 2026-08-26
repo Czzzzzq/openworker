@@ -10,6 +10,7 @@ import {
 import { ConnectorBadge } from "../../connectors/ConnectorIcon";
 import { ConnectSetup } from "../ManageTabs";
 import { CloudSignInInline, CloudStatusPending } from "./CloudSignIn";
+import { QrConnect } from "./QrConnect";
 import { PILL_ACCENT, PILL_LINE, TAG_ACCENT } from "./ui";
 
 // The ONE place a connection gets added (UX-DECISIONS §21): the detail page's header
@@ -70,7 +71,15 @@ export function AddConnectionModal({
           </button>
         </div>
 
-        {twoModes ? (
+        {c.auth === "qr" ? (
+          <QrConnect
+            connector={c}
+            onConnected={() => {
+              onChanged();
+              onClose();
+            }}
+          />
+        ) : twoModes ? (
           <>
             <div className="px-5 pt-4">
               <div className="inline-flex rounded-full p-0.5 bg-paper text-[13px] font-medium">

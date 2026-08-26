@@ -43,6 +43,15 @@ describe("ConnectorIcon", () => {
     expect(el.querySelector("svg")).not.toBeNull();
   });
 
+  it("renders the Weixin mark from the registry", () => {
+    const { container } = render(
+      <ConnectorIcon connector={{ logo: "weixin", brand_color: "#07c160" }} />,
+    );
+    const el = container.querySelector("[data-logo]") as HTMLElement;
+    expect(el.getAttribute("data-logo")).toBe("weixin");
+    expect(el.querySelector("svg")).not.toBeNull();
+  });
+
   it("flags near-black marks so dark-mode CSS can compensate", () => {
     // GitHub / Notion near-black → flagged; HubSpot orange → not.
     expect(isDarkMark("#1f2328")).toBe(true);

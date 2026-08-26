@@ -31,7 +31,7 @@ if not exist "%COWORKER_STATE_DIR%\secrets.json" (
 )
 
 REM 2) Start the backend server (writes .dev-state\sidecar-8765.token on boot).
-start "openworker-server" cmd /k "set COWORKER_STATE_DIR=%COWORKER_STATE_DIR% && .venv\Scripts\openworker-server.exe --cwd "%~dp0" --port 8765"
+start "openworker-server" /D "%~dp0" cmd /k ".venv\Scripts\python.exe -m coworker.server.run --cwd . --port 8765"
 
 REM 3) Wait for the token file so Vite embeds the right token.
 :wait_token
@@ -41,7 +41,7 @@ if not exist "%COWORKER_STATE_DIR%\sidecar-8765.token" (
 )
 
 REM 4) Start the GUI dev server (reads the token file at startup).
-start "openworker-gui" cmd /k "set COWORKER_STATE_DIR=%COWORKER_STATE_DIR% && cd /d "%~dp0surfaces\gui" && npm run dev"
+start "openworker-gui" /D "%~dp0surfaces\gui" cmd /k "npm run dev"
 
 echo.
 echo OpenWorker dev stack is starting...

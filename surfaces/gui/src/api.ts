@@ -623,6 +623,26 @@ export interface ConnectorField {
   placeholder: string;
 }
 
+export type QrLoginState =
+  | "waiting_scan"
+  | "waiting_confirm"
+  | "need_verify_code"
+  | "connected"
+  | "expired"
+  | "error"
+  | "cancelled";
+
+/** Ephemeral QR authorization state. Credentials never cross this API boundary. */
+export interface QrLoginSession {
+  session_id: string;
+  state: QrLoginState;
+  qr_content?: string;
+  expires_at?: number;
+  account?: string;
+  error?: string;
+  needs_verify_code?: boolean;
+}
+
 // A message from a sender not (yet) on the allow-list — parked instead of dropped (§19).
 export interface ParkedMessage {
   id: string;
@@ -866,6 +886,55 @@ export async function connectConnector(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ fields }),
   });
+  return res.json();
+}
+
+async function qrSessionResponse(res: Response): Promise<QrLoginSession> {
+  const body = (await res.json().catch(() => ({}))) as Partial<QrLoginSession>;
+  if (!res.ok) throw new Error(body.error || "could not continue QR sign-in");
+  return body as QrLoginSession;
+}
+
+export async function startQrLogin(name: string): Promise<QrLoginSession> {
+  const res = await fetch(
+    `${httpBase()}/v1/connectors/${encodeURIComponent(name)}/qr-sessions`,
+    { method: "POST" },
+  );
+  return qrSessionResponse(res);
+}
+
+export async function getQrLogin(name: string, sessionId: string): Promise<QrLoginSession> {
+  const res = await fetch(
+    `${httpBase()}/v1/connectors/${encodeURIComponent(name)}/qr-sessions/${encodeURIComponent(sessionId)}`,
+  );
+  return qrSessionResponse(res);
+}
+
+export async function verifyQrLogin(
+  name: string,
+  sessionId: string,
+  code: string,
+): Promise<QrLoginSession> {
+  const res = await fetch(
+    `${httpBase()}/v1/connectors/${encodeURIComponent(name)}/qr-sessions/${encodeURIComponent(sessionId)}/verify`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code }),
+    },
+  );
+  return qrSessionResponse(res);
+}
+
+export async function cancelQrLogin(
+  name: string,
+  sessionId: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const res = await fetch(
+    `${httpBase()}/v1/connectors/${encodeURIComponent(name)}/qr-sessions/${encodeURIComponent(sessionId)}`,
+    { method: "DELETE" },
+  );
+  if (res.status === 204) return { ok: true };
   return res.json();
 }
 

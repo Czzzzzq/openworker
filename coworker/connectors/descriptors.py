@@ -48,7 +48,7 @@ class ConnectorDescriptor:
     title: str
     icon: str
     blurb: str
-    auth: str  # "bot_token" | "socket_app" | "oauth" | "token" | "api_token" | "none"
+    auth: str  # "bot_token" | "socket_app" | "oauth" | "qr" | "token" | "api_token" | "none"
     two_way: bool
     fields: list[Field]
     instructions: list[str]
@@ -527,6 +527,24 @@ DESCRIPTORS: list[ConnectorDescriptor] = [
             "Paste the App ID and App Secret below. In a group, @mentioning the bot replies with member names and open_ids; then use Capture to allow your open_id.",
         ],
         validate=_validate_feishu,
+    ),
+    ConnectorDescriptor(
+        name="weixin",
+        title="微信",
+        icon="微",
+        blurb="通过微信 ClawBot 与 OpenWorker 双向直聊。",
+        auth="qr",
+        two_way=True,
+        channels=False,
+        brand_color="#07C160",
+        logo="weixin",
+        aliases=("wechat", "微信", "clawbot", "ilink", "chat"),
+        fields=[],
+        instructions=[
+            "点击 Connect 后，用手机微信扫描二维码。",
+            "如果手机显示配对数字，请在连接窗口中输入。",
+            "确认后，扫码账号会自动加入本机 allow-list，随后可直接给 ClawBot 发消息。",
+        ],
     ),
     ConnectorDescriptor(
         name="email",

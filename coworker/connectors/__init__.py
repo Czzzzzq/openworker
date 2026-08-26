@@ -25,6 +25,7 @@ from .slack_addr import qualify as slack_qualify, split as slack_split
 from .descriptors import ConnectorDescriptor, get_descriptor, list_descriptors
 from .fake import FakeAdapter
 from .gateway import Gateway
+from .weixin import WeixinAdapter, weixin_message_to_event
 from .senders import DEFAULT_SENDERS
 from .setup import (
     connect_connector,
@@ -70,9 +71,11 @@ __all__ = [
     "SlackAdapter",
     "SlackRelayAdapter",
     "TelegramAdapter",
+    "WeixinAdapter",
     "make_adapter",
     "slack_event_to_event",
     "telegram_message_to_event",
+    "weixin_message_to_event",
     "slack_qualify",
     "slack_split",
 ]

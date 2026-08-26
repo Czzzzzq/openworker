@@ -256,6 +256,12 @@ class SessionManager:
         # drained once by the WS handler to append a transcript notice.
         self._mcp_session_failures: dict[str, list[str]] = {}
         self.gateway: Optional[Gateway] = None
+        # Weixin QR authorization is a short-lived in-memory flow. Credentials
+        # are written only after the phone confirms; the coordinator never
+        # serializes QR ids, verification codes, or bot tokens to API responses.
+        from ..connectors.weixin import WeixinLoginCoordinator
+
+        self.weixin_logins = WeixinLoginCoordinator()
         self._data_base = base
         # API 费用统计：每轮模型调用的 usage 经 MeteredProvider 落入这里（JSONL 持久化）。
         self.cost_meter = CostMeter(base, secrets=self.secrets)
@@ -1633,6 +1639,80 @@ class SessionManager:
     ) -> dict[str, Any]:
         # validates the token by a live API call (sync httpx) — run off the event loop
         return connect_connector(self.secrets, name, fields, acknowledged=acknowledged)
+
+    @staticmethod
+    def _qr_connector_supported(name: str) -> bool:
+        from ..connectors.descriptors import get_descriptor
+
+        descriptor = get_descriptor(name)
+        return descriptor is not None and descriptor.auth == "qr" and name == "weixin"
+
+    async def start_connector_qr_session(self, name: str) -> dict[str, Any]:
+        if not self._qr_connector_supported(name):
+            return {"ok": False, "error": f"{name} has no QR sign-in flow"}
+        existing = self.secrets.get("weixin:default") or {}
+        return await self.weixin_logins.start(
+            on_connected=self._complete_weixin_login,
+            existing_profile=existing,
+        )
+
+    def connector_qr_session(self, name: str, session_id: str) -> dict[str, Any]:
+        if not self._qr_connector_supported(name):
+            return {"ok": False, "error": f"{name} has no QR sign-in flow"}
+        return self.weixin_logins.status(session_id)
+
+    def verify_connector_qr_session(
+        self, name: str, session_id: str, code: str
+    ) -> dict[str, Any]:
+        if not self._qr_connector_supported(name):
+            return {"ok": False, "error": f"{name} has no QR sign-in flow"}
+        return self.weixin_logins.submit_verify_code(session_id, code)
+
+    async def cancel_connector_qr_session(
+        self, name: str, session_id: str
+    ) -> dict[str, Any]:
+        if not self._qr_connector_supported(name):
+            return {"ok": False, "error": f"{name} has no QR sign-in flow"}
+        return await self.weixin_logins.cancel(session_id)
+
+    async def cancel_connector_qr_sessions(self, name: str) -> None:
+        if self._qr_connector_supported(name):
+            await self.weixin_logins.cancel_active()
+
+    async def _complete_weixin_login(
+        self, credentials: dict[str, Any]
+    ) -> dict[str, Any]:
+        from ..connectors.weixin import clear_weixin_runtime, weixin_state_path
+
+        existing = self.secrets.get("weixin:default") or {}
+        old_account = str(existing.get("ilink_bot_id") or "")
+        account_id = str(credentials["ilink_bot_id"])
+        user_id = str(credentials["ilink_user_id"])
+        allowed = set(existing.get("allowed_users") or [])
+        allowed.add(user_id)
+        profile = {
+            "type": "qr",
+            "enabled": True,
+            "bot_token": credentials["bot_token"],
+            "ilink_bot_id": account_id,
+            "ilink_user_id": user_id,
+            "base_url": credentials["base_url"],
+            "account": account_id,
+            "allowed_users": sorted(allowed),
+            "allow_all": bool(existing.get("allow_all", False)),
+        }
+        self.secrets.put("weixin:default", profile)
+        if old_account and old_account != account_id:
+            clear_weixin_runtime(weixin_state_path(self.secrets), old_account)
+        started = await self.refresh_gateway()
+        if "weixin" not in started:
+            raise RuntimeError("Weixin credentials were saved, but its listener did not start")
+        return {"account": account_id}
+
+    def clear_weixin_runtime(self) -> None:
+        from ..connectors.weixin import clear_weixin_runtime, weixin_state_path
+
+        clear_weixin_runtime(weixin_state_path(self.secrets))
 
     def set_experimental_connectors(self, value: bool) -> dict[str, Any]:
         return set_experimental_enabled(self.secrets, value)
@@ -4235,6 +4315,7 @@ class SessionManager:
                 self.unregister_session_client(session_id, cb)
 
     async def aclose(self) -> None:
+        await self.weixin_logins.close()
         await self.scheduler.stop()
         await self.stop_gateway()
         await self.mcp.aclose()

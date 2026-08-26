@@ -39,6 +39,7 @@ import {
   siStripe,
   siTelegram,
   siWhatsapp,
+  siWechat,
   siZendesk,
 } from "simple-icons";
 
@@ -198,6 +199,8 @@ const PlugLogo = strokeLogo(
 /** Neutral fallback for unknown / empty logo ids. */
 export const FALLBACK: ConnectorRegistryEntry = { label: "Connector", logo: PlugLogo };
 
+const WECHAT = brand(siWechat);
+
 export const CONNECTORS: Record<string, ConnectorRegistryEntry> = {
   // Real brand marks from simple-icons.
   asana: brand(siAsana),
@@ -224,6 +227,8 @@ export const CONNECTORS: Record<string, ConnectorRegistryEntry> = {
   stripe: brand(siStripe),
   telegram: brand(siTelegram),
   whatsapp: brand(siWhatsapp),
+  wechat: WECHAT,
+  weixin: WECHAT,
   zendesk: brand(siZendesk),
   // Real brand marks vendored from simple-icons v9.
   slack: { label: "Slack", logo: pathLogo(SLACK_PATH) },

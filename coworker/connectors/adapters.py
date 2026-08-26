@@ -445,6 +445,17 @@ def make_adapter(
         from .feishu import FeishuAdapter
 
         return FeishuAdapter(profile["app_id"], profile["app_secret"])
+    if (
+        platform == "weixin"
+        and secrets is not None
+        and profile.get("bot_token")
+        and profile.get("ilink_bot_id")
+        and profile.get("ilink_user_id")
+        and profile.get("base_url")
+    ):
+        from .weixin import WeixinAdapter, weixin_state_path
+
+        return WeixinAdapter(profile, state_path=weixin_state_path(secrets))
     if platform == "slack":
         if profile.get("mode") == "relay":
             if not (relay_url and token_provider):

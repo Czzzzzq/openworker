@@ -25,6 +25,8 @@ ABOUT: dict[str, str] = {
     "feishu": "Bring your coworker into Feishu through a native bot long connection. "
     "DM it or @mention it in a group, and replies stay attached to the message "
     "that started the work.",
+    "weixin": "Chat with OpenWorker through a WeChat ClawBot. The native iLink "
+    "listener runs on this computer and replies in the same one-to-one chat.",
     "gmail": "Search, summarize, and send over your Gmail. Multiple accounts "
     "connect side by side, and privacy filters can hide chosen senders or "
     "labels from agents entirely.",
@@ -79,6 +81,12 @@ ACCESS: dict[str, list[str]] = {
         "Replies as the bot in the originating chat or thread.",
         "Only senders on your local allow-list are routed to an agent.",
         "Uses a Feishu long connection — no public webhook endpoint is required.",
+    ],
+    "weixin": [
+        "Reads only messages sent between the scanning user and the connected ClawBot.",
+        "Does not read ordinary friends, group chats, or personal WeChat history.",
+        "Replies as the ClawBot using the short-lived context from an inbound message.",
+        "Uses long polling from this computer — no public webhook endpoint is required.",
     ],
     "email": [
         "Reads and searches mail over IMAP.",

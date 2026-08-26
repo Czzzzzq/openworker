@@ -7,6 +7,12 @@ build/
 dist/
 .coverage
 
+# Local OpenWorker runtime state (sessions, credentials, installed skills)
+.dev-state/
+
+# Local agent scratch files
+.coworker/tmp/
+
 # Local secrets (live-smoke BYO keys) — never committed
 .env
 .claude/settings.local.json
