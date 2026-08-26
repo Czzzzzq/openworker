@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+<rect width="1280" height="720" fill="#FFF8EA"/>
+<circle cx="1110" cy="120" r="150" fill="#E9F5E7"/>
+<circle cx="1150" cy="135" r="72" fill="#F47C5A" opacity="0.86"/>
+<circle cx="180" cy="610" r="120" fill="#DDF0FA"/>
+<path d="M930 560 C1000 470 1100 455 1200 520" fill="none" stroke="#195B45" stroke-width="10" stroke-linecap="round"/>
+<path d="M930 560 C1030 535 1100 560 1200 520" fill="none" stroke="#2D9CDB" stroke-width="5" stroke-linecap="round"/>
+<g fill="#195B45"><circle cx="1080" cy="580" r="8"/><circle cx="1120" cy="555" r="5"/><circle cx="1160" cy="590" r="7"/></g>
+<text x="84" y="112" font-family="Microsoft YaHei, Arial, sans-serif" font-size="22" font-weight="700" fill="#F47C5A">环保主题分享 / CAMPUS ECOLOGY</text>
+<text x="84" y="292" font-family="Microsoft YaHei, Arial, sans-serif" font-size="62" font-weight="700" fill="#195B45">保护自然，</text>
+<text x="84" y="370" font-family="Microsoft YaHei, Arial, sans-serif" font-size="62" font-weight="700" fill="#195B45">从校园开始</text>
+<text x="88" y="432" font-family="Microsoft YaHei, Arial, sans-serif" font-size="28" fill="#20352D">大学生可参与的四类行动</text>
+<rect x="86" y="520" width="280" height="62" rx="31" fill="#195B45"/>
+<text x="226" y="560" text-anchor="middle" font-family="Microsoft YaHei, Arial, sans-serif" font-size="23" font-weight="700" fill="#FFF8EA">从下一次选择开始</text>
+<text x="88" y="652" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" fill="#567066">一场关于减量、循环、修复与倡议的校园行动课</text>
+</svg>

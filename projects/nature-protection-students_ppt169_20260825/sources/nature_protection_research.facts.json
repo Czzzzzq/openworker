@@ -1,0 +1,54 @@
+{
+  "schema": "ppt-master.fact-provenance.v1",
+  "topic": "保护自然：大学生可参与的行动",
+  "facts": [
+    {
+      "fact_id": "F001",
+      "claim": "人类每年生产超过4亿吨塑料，大量塑料最终进入环境。",
+      "source_title": "Taking on plastic pollution | UNEP Annual Report 2024",
+      "source_url": "https://www.unep.org/annualreport/2024/stories/taking-plastic-pollution",
+      "classification": "external",
+      "retrieved_at": "2026-08-25"
+    },
+    {
+      "fact_id": "F002",
+      "claim": "每年约1900–2300万吨塑料废弃物泄漏进入水生生态系统。",
+      "source_title": "Plastic Pollution | UNEP",
+      "source_url": "https://www.unep.org/plastic-pollution",
+      "classification": "external",
+      "retrieved_at": "2026-08-25"
+    },
+    {
+      "fact_id": "F003",
+      "claim": "2022年全球家庭每天浪费超过10亿份餐食；约7.83亿人受到饥饿影响。",
+      "source_title": "World squanders over 1 billion meals a day - UN report",
+      "source_url": "https://www.unep.org/news-and-stories/press-release/world-squanders-over-1-billion-meals-day-un-report",
+      "classification": "external",
+      "retrieved_at": "2026-08-25"
+    },
+    {
+      "fact_id": "F004",
+      "claim": "全球食物浪费主要发生在家庭、餐饮服务和零售环节，减少浪费需要多环节行动。",
+      "source_title": "Food waste focus as the world marks the International Day of Zero Waste | UNEP",
+      "source_url": "https://www.unep.org/news-and-stories/press-release/food-waste-focus-world-marks-international-day-zero-waste",
+      "classification": "external",
+      "retrieved_at": "2026-08-25"
+    },
+    {
+      "fact_id": "F005",
+      "claim": "IPCC AR6综合报告总结了气候变化的影响、风险、减缓与适应路径。",
+      "source_title": "AR6 Synthesis Report: Climate Change 2023 | IPCC",
+      "source_url": "https://www.ipcc.ch/report/ar6/syr/summary-for-policymakers/",
+      "classification": "external",
+      "retrieved_at": "2026-08-25"
+    },
+    {
+      "fact_id": "F006",
+      "claim": "全球生物多样性框架提出，到2030年至少恢复30%的退化陆地、内陆水域及海洋和沿海生态系统。",
+      "source_title": "The Global Biodiversity Framework | UNEP",
+      "source_url": "https://www.unep.org/interactives/global-biodiversity-framework/en/global-biodiversity-framework",
+      "classification": "external",
+      "retrieved_at": "2026-08-25"
+    }
+  ]
+}

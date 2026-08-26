@@ -1,0 +1,1228 @@
+{
+  "schema": "ppt-master.svg-quality-report.v1",
+  "stage": "final",
+  "target": "D:\\openworker\\openworker\\projects\\nature-protection-students_ppt169_20260825",
+  "source_fingerprint": {
+    "algorithm": "sha256",
+    "digest": "4f6a3d59b59cf828b47cb2151370e779da24964c4a659541a93c40a2f5703ea7",
+    "file_count": 13,
+    "files": [
+      {
+        "file": "P01.svg",
+        "sha256": "2565bc217efef1faaf2ef018b141fb217f203dbcff8779a1cd9cccd5d1889035"
+      },
+      {
+        "file": "P02.svg",
+        "sha256": "133215bfc3cd532b0fff6beb2837b503adfd32fd1384d1f103e44f9a8998fdf7"
+      },
+      {
+        "file": "P03.svg",
+        "sha256": "0213e9ed1051e46d68573765a0267874235e272dfade9b38889175dab9ef09fb"
+      },
+      {
+        "file": "P04.svg",
+        "sha256": "ae2df4c66e1ff666b503bd1c15ad2fc66b660ade80a9ecb937e1fc91f596d057"
+      },
+      {
+        "file": "P05.svg",
+        "sha256": "0a5867a4b8df64d052634cfd60ed210fe171dc9d1d25432ed8ada760babd593b"
+      },
+      {
+        "file": "P06.svg",
+        "sha256": "67e34a31f5727e8cab9fa3edb82574d25ec1cc8167a74e98d37a067eef2dd1cd"
+      },
+      {
+        "file": "P07.svg",
+        "sha256": "c243d2d19349e62137fa5769cb8c9ed7ec84a237c7af8376a2ba1ffcf2266a7f"
+      },
+      {
+        "file": "P08.svg",
+        "sha256": "0cca69b323bc56efd559ef0b6ecbf919fae7d86762dc22faaf006bd2f0d00066"
+      },
+      {
+        "file": "P09.svg",
+        "sha256": "e82d5f3121e7d56038d915c2a65aa9cb1323d5ba86d72f954f25398c47938592"
+      },
+      {
+        "file": "P10.svg",
+        "sha256": "a212977b86f405dfd1e4d4f70ae68933690aed504d34a758ef6b7d0724f318db"
+      },
+      {
+        "file": "P11.svg",
+        "sha256": "acadba964ead8fa9ede47ce8a8b20f3ebc98ffc3f092cc24c34ad224114f80fb"
+      },
+      {
+        "file": "P12.svg",
+        "sha256": "4c083cc0c9fadec96a6d34c3f2dcf17fefa0acf6c33c2b56b83089fb4bd82ef4"
+      },
+      {
+        "file": "P13.svg",
+        "sha256": "914583205dd015f13fdd3e4c8fe2291154bea2ce804e7c0afad63c31e9a81397"
+      }
+    ]
+  },
+  "summary": {
+    "total": 13,
+    "passed": 0,
+    "warnings": 13,
+    "errors": 0
+  },
+  "issue_types": {},
+  "categories": {
+    "blocking": {
+      "count": 0,
+      "issues": []
+    },
+    "introduced": {
+      "count": 52,
+      "issues": [
+        {
+          "file": "P01.svg",
+          "message": "Reference SVG: detected 1 visible root-level <g> module(s) without explicit data-pptx-bounds (<g>); every final-page/template root <g> other than a compact authored-preset atom declares its root-coordinate layout subcanvas even when it also carries native coordinates"
+        },
+        {
+          "file": "P01.svg",
+          "message": "Top-level visible <g> #7 has no id; object-level animation config cannot reference it"
+        },
+        {
+          "file": "P01.svg",
+          "message": "12 ungrouped top-level Slide-local element(s) in svg_output (<circle> #2, <circle> #3, <circle> #4, ...); group only logical content units in a top-level <g id=\"...\">. Keep genuine static page framing as a root primitive and declare a supported data-pptx-role such as \"background\" or \"decoration\""
+        },
+        {
+          "file": "P01.svg",
+          "message": "page SVG is missing root data-pptx-page-role"
+        },
+        {
+          "file": "P02.svg",
+          "message": "Reference SVG: detected 2 visible root-level <g> module(s) without explicit data-pptx-bounds (<g>; <g>); every final-page/template root <g> other than a compact authored-preset atom declares its root-coordinate layout subcanvas even when it also carries native coordinates"
+        },
+        {
+          "file": "P02.svg",
+          "message": "Top-level visible <g> #8 has no id; object-level animation config cannot reference it"
+        },
+        {
+          "file": "P02.svg",
+          "message": "Top-level visible <g> #9 has no id; object-level animation config cannot reference it"
+        },
+        {
+          "file": "P02.svg",
+          "message": "7 ungrouped top-level Slide-local element(s) in svg_output (<text> #2, <text> #3, <text> #4, ...); group only logical content units in a top-level <g id=\"...\">. Keep genuine static page framing as a root primitive and declare a supported data-pptx-role such as \"background\" or \"decoration\""
+        },
+        {
+          "file": "P02.svg",
+          "message": "page SVG is missing root data-pptx-page-role"
+        },
+        {
+          "file": "P03.svg",
+          "message": "Reference SVG: detected 1 visible root-level <g> module(s) without explicit data-pptx-bounds (<g>); every final-page/template root <g> other than a compact authored-preset atom declares its root-coordinate layout subcanvas even when it also carries native coordinates"
+        },
+        {
+          "file": "P03.svg",
+          "message": "Top-level visible <g> #5 has no id; object-level animation config cannot reference it"
+        },
+        {
+          "file": "P03.svg",
+          "message": "5 ungrouped top-level Slide-local element(s) in svg_output (<text> #2, <text> #3, <text> #4, ...); group only logical content units in a top-level <g id=\"...\">. Keep genuine static page framing as a root primitive and declare a supported data-pptx-role such as \"background\" or \"decoration\""
+        },
+        {
+          "file": "P03.svg",
+          "message": "page SVG is missing root data-pptx-page-role"
+        },
+        {
+          "file": "P04.svg",
+          "message": "Reference SVG: detected 1 visible root-level <g> module(s) without explicit data-pptx-bounds (<g>); every final-page/template root <g> other than a compact authored-preset atom declares its root-coordinate layout subcanvas even when it also carries native coordinates"
+        },
+        {
+          "file": "P04.svg",
+          "message": "Top-level visible <g> #5 has no id; object-level animation config cannot reference it"
+        },
+        {
+          "file": "P04.svg",
+          "message": "4 ungrouped top-level Slide-local element(s) in svg_output (<text> #2, <text> #3, <text> #4, ...); group only logical content units in a top-level <g id=\"...\">. Keep genuine static page framing as a root primitive and declare a supported data-pptx-role such as \"background\" or \"decoration\""
+        },
+        {
+          "file": "P04.svg",
+          "message": "page SVG is missing root data-pptx-page-role"
+        },
+        {
+          "file": "P05.svg",
+          "message": "Reference SVG: detected 3 visible root-level <g> module(s) without explicit data-pptx-bounds (<g>; <g>; <g>); every final-page/template root <g> other than a compact authored-preset atom declares its root-coordinate layout subcanvas even when it also carries native coordinates"
+        },
+        {
+          "file": "P05.svg",
+          "message": "Top-level visible <g> #5 has no id; object-level animation config cannot reference it"
+        },
+        {
+          "file": "P05.svg",
+          "message": "Top-level visible <g> #6 has no id; object-level animation config cannot reference it"
+        },
+        {
+          "file": "P05.svg",
+          "message": "Top-level visible <g> #7 has no id; object-level animation config cannot reference it"
+        },
+        {
+          "file": "P05.svg",
+          "message": "5 ungrouped top-level Slide-local element(s) in svg_output (<text> #2, <text> #3, <text> #4, ...); group only logical content units in a top-level <g id=\"...\">. Keep genuine static page framing as a root primitive and declare a supported data-pptx-role such as \"background\" or \"decoration\""
+        },
+        {
+          "file": "P05.svg",
+          "message": "page SVG is missing root data-pptx-page-role"
+        },
+        {
+          "file": "P06.svg",
+          "message": "13 ungrouped top-level Slide-local element(s) in svg_output (<circle> #2, <circle> #3, <text> #4, ...); group only logical content units in a top-level <g id=\"...\">. Keep genuine static page framing as a root primitive and declare a supported data-pptx-role such as \"background\" or \"decoration\""
+        },
+        {
+          "file": "P06.svg",
+          "message": "page SVG is missing root data-pptx-page-role"
+        },
+        {
+          "file": "P07.svg",
+          "message": "Reference SVG: detected 1 visible root-level <g> module(s) without explicit data-pptx-bounds (<g>); every final-page/template root <g> other than a compact authored-preset atom declares its root-coordinate layout subcanvas even when it also carries native coordinates"
+        },
+        {
+          "file": "P07.svg",
+          "message": "Top-level visible <g> #5 has no id; object-level animation config cannot reference it"
+        },
+        {
+          "file": "P07.svg",
+          "message": "4 ungrouped top-level Slide-local element(s) in svg_output (<text> #2, <text> #3, <text> #4, ...); group only logical content units in a top-level <g id=\"...\">. Keep genuine static page framing as a root primitive and declare a supported data-pptx-role such as \"background\" or \"decoration\""
+        },
+        {
+          "file": "P07.svg",
+          "message": "page SVG is missing root data-pptx-page-role"
+        },
+        {
+          "file": "P08.svg",
+          "message": "Reference SVG: detected 2 visible root-level <g> module(s) without explicit data-pptx-bounds (<g>; <g>); every final-page/template root <g> other than a compact authored-preset atom declares its root-coordinate layout subcanvas even when it also carries native coordinates"
+        },
+        {
+          "file": "P08.svg",
+          "message": "Top-level visible <g> #5 has no id; object-level animation config cannot reference it"
+        },
+        {
+          "file": "P08.svg",
+          "message": "Top-level visible <g> #6 has no id; object-level animation config cannot reference it"
+        },
+        {
+          "file": "P08.svg",
+          "message": "4 ungrouped top-level Slide-local element(s) in svg_output (<text> #2, <text> #3, <text> #4, ...); group only logical content units in a top-level <g id=\"...\">. Keep genuine static page framing as a root primitive and declare a supported data-pptx-role such as \"background\" or \"decoration\""
+        },
+        {
+          "file": "P08.svg",
+          "message": "page SVG is missing root data-pptx-page-role"
+        },
+        {
+          "file": "P09.svg",
+          "message": "Reference SVG: detected 1 visible root-level <g> module(s) without explicit data-pptx-bounds (<g>); every final-page/template root <g> other than a compact authored-preset atom declares its root-coordinate layout subcanvas even when it also carries native coordinates"
+        },
+        {
+          "file": "P09.svg",
+          "message": "Top-level visible <g> #9 has no id; object-level animation config cannot reference it"
+        },
+        {
+          "file": "P09.svg",
+          "message": "8 ungrouped top-level Slide-local element(s) in svg_output (<text> #2, <text> #3, <text> #4, ...); group only logical content units in a top-level <g id=\"...\">. Keep genuine static page framing as a root primitive and declare a supported data-pptx-role such as \"background\" or \"decoration\""
+        },
+        {
+          "file": "P09.svg",
+          "message": "page SVG is missing root data-pptx-page-role"
+        },
+        {
+          "file": "P10.svg",
+          "message": "Reference SVG: detected 1 visible root-level <g> module(s) without explicit data-pptx-bounds (<g>); every final-page/template root <g> other than a compact authored-preset atom declares its root-coordinate layout subcanvas even when it also carries native coordinates"
+        },
+        {
+          "file": "P10.svg",
+          "message": "Top-level visible <g> #5 has no id; object-level animation config cannot reference it"
+        },
+        {
+          "file": "P10.svg",
+          "message": "4 ungrouped top-level Slide-local element(s) in svg_output (<text> #2, <text> #3, <text> #4, ...); group only logical content units in a top-level <g id=\"...\">. Keep genuine static page framing as a root primitive and declare a supported data-pptx-role such as \"background\" or \"decoration\""
+        },
+        {
+          "file": "P10.svg",
+          "message": "page SVG is missing root data-pptx-page-role"
+        },
+        {
+          "file": "P11.svg",
+          "message": "Reference SVG: detected 1 visible root-level <g> module(s) without explicit data-pptx-bounds (<g>); every final-page/template root <g> other than a compact authored-preset atom declares its root-coordinate layout subcanvas even when it also carries native coordinates"
+        },
+        {
+          "file": "P11.svg",
+          "message": "Top-level visible <g> #5 has no id; object-level animation config cannot reference it"
+        },
+        {
+          "file": "P11.svg",
+          "message": "4 ungrouped top-level Slide-local element(s) in svg_output (<text> #2, <text> #3, <text> #4, ...); group only logical content units in a top-level <g id=\"...\">. Keep genuine static page framing as a root primitive and declare a supported data-pptx-role such as \"background\" or \"decoration\""
+        },
+        {
+          "file": "P11.svg",
+          "message": "page SVG is missing root data-pptx-page-role"
+        },
+        {
+          "file": "P12.svg",
+          "message": "Reference SVG: detected 1 visible root-level <g> module(s) without explicit data-pptx-bounds (<g>); every final-page/template root <g> other than a compact authored-preset atom declares its root-coordinate layout subcanvas even when it also carries native coordinates"
+        },
+        {
+          "file": "P12.svg",
+          "message": "Top-level visible <g> #6 has no id; object-level animation config cannot reference it"
+        },
+        {
+          "file": "P12.svg",
+          "message": "6 ungrouped top-level Slide-local element(s) in svg_output (<text> #2, <text> #3, <text> #4, ...); group only logical content units in a top-level <g id=\"...\">. Keep genuine static page framing as a root primitive and declare a supported data-pptx-role such as \"background\" or \"decoration\""
+        },
+        {
+          "file": "P12.svg",
+          "message": "page SVG is missing root data-pptx-page-role"
+        },
+        {
+          "file": "P13.svg",
+          "message": "10 ungrouped top-level Slide-local element(s) in svg_output (<circle> #2, <circle> #3, <path> #4, ...); group only logical content units in a top-level <g id=\"...\">. Keep genuine static page framing as a root primitive and declare a supported data-pptx-role such as \"background\" or \"decoration\""
+        },
+        {
+          "file": "P13.svg",
+          "message": "page SVG is missing root data-pptx-page-role"
+        }
+      ]
+    },
+    "inherited": {
+      "count": 0,
+      "issues": []
+    },
+    "source-import": {
+      "count": 0,
+      "summary": {
+        "warning_count": 0,
+        "by_code": {}
+      }
+    }
+  },
+  "drift": {
+    "colors": {
+      "#567066": [
+        "P01.svg",
+        "P02.svg",
+        "P03.svg",
+        "P04.svg",
+        "P06.svg",
+        "P07.svg",
+        "P08.svg",
+        "P09.svg",
+        "P11.svg"
+      ],
+      "#DDF0FA": [
+        "P01.svg",
+        "P02.svg",
+        "P03.svg",
+        "P04.svg",
+        "P05.svg",
+        "P07.svg",
+        "P08.svg",
+        "P09.svg",
+        "P10.svg",
+        "P12.svg"
+      ],
+      "#F0B429": [
+        "P03.svg"
+      ],
+      "#FADACF": [
+        "P02.svg",
+        "P03.svg",
+        "P05.svg",
+        "P06.svg",
+        "P07.svg",
+        "P08.svg",
+        "P10.svg",
+        "P12.svg"
+      ],
+      "#FFF0B8": [
+        "P02.svg",
+        "P03.svg",
+        "P07.svg",
+        "P08.svg",
+        "P10.svg",
+        "P13.svg"
+      ]
+    },
+    "fonts": {},
+    "sizes": {}
+  },
+  "carrier_receipt": {
+    "scope": "informational-not-a-quota",
+    "pages": 13,
+    "totals": {
+      "text_elements": 163,
+      "image_placements": 0,
+      "icons": 0,
+      "svg_geometry_elements": 103,
+      "preset_shapes": 0,
+      "page_frame_elements": 0,
+      "marker_uses": 0
+    },
+    "pages_with": {
+      "images": 0,
+      "icons": 0,
+      "presets": 0,
+      "charts": 0,
+      "tables": 0,
+      "formulas": 0
+    },
+    "geometry_elements": {
+      "circle": 37,
+      "ellipse": 0,
+      "line": 1,
+      "path": 24,
+      "polygon": 0,
+      "polyline": 0,
+      "rect": 41
+    },
+    "preset_names": {},
+    "native_objects": {
+      "chart": 0,
+      "formula_block": 0,
+      "formula_inline": 0,
+      "other": 0,
+      "table": 0
+    },
+    "image_page_max_frame_share_range": []
+  },
+  "project_issues": {
+    "template": [],
+    "animation": [],
+    "illustration": [],
+    "communication_trace": [],
+    "pptx_structure": []
+  },
+  "files": [
+    {
+      "file": "P01.svg",
+      "path": "D:\\openworker\\openworker\\projects\\nature-protection-students_ppt169_20260825\\svg_output\\P01.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Reference SVG: detected 1 visible root-level <g> module(s) without explicit data-pptx-bounds (<g>); every final-page/template root <g> other than a compact authored-preset atom declares its root-coordinate layout subcanvas even when it also carries native coordinates",
+        "Top-level visible <g> #7 has no id; object-level animation config cannot reference it",
+        "12 ungrouped top-level Slide-local element(s) in svg_output (<circle> #2, <circle> #3, <circle> #4, ...); group only logical content units in a top-level <g id=\"...\">. Keep genuine static page framing as a root primitive and declare a supported data-pptx-role such as \"background\" or \"decoration\"",
+        "page SVG is missing root data-pptx-page-role"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 6,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "geometry": {
+            "svg_elements": {
+              "rect": 2,
+              "circle": 6,
+              "ellipse": 0,
+              "line": 0,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 2
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 0,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Microsoft YaHei, Arial, sans-serif"
+        ],
+        "text_elements": 6,
+        "tspan_elements": 0,
+        "contextual_values": {
+          "colors": [
+            "#567066",
+            "#DDF0FA"
+          ]
+        }
+      },
+      "passed": true,
+      "source_sha256": "2565bc217efef1faaf2ef018b141fb217f203dbcff8779a1cd9cccd5d1889035"
+    },
+    {
+      "file": "P02.svg",
+      "path": "D:\\openworker\\openworker\\projects\\nature-protection-students_ppt169_20260825\\svg_output\\P02.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Reference SVG: detected 2 visible root-level <g> module(s) without explicit data-pptx-bounds (<g>; <g>); every final-page/template root <g> other than a compact authored-preset atom declares its root-coordinate layout subcanvas even when it also carries native coordinates",
+        "Top-level visible <g> #8 has no id; object-level animation config cannot reference it",
+        "Top-level visible <g> #9 has no id; object-level animation config cannot reference it",
+        "7 ungrouped top-level Slide-local element(s) in svg_output (<text> #2, <text> #3, <text> #4, ...); group only logical content units in a top-level <g id=\"...\">. Keep genuine static page framing as a root primitive and declare a supported data-pptx-role such as \"background\" or \"decoration\"",
+        "page SVG is missing root data-pptx-page-role"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 14,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "geometry": {
+            "svg_elements": {
+              "rect": 1,
+              "circle": 5,
+              "ellipse": 0,
+              "line": 0,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 4
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 0,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Microsoft YaHei, Arial, sans-serif"
+        ],
+        "text_elements": 14,
+        "tspan_elements": 0,
+        "contextual_values": {
+          "colors": [
+            "#567066",
+            "#DDF0FA",
+            "#FADACF",
+            "#FFF0B8"
+          ]
+        }
+      },
+      "passed": true,
+      "source_sha256": "133215bfc3cd532b0fff6beb2837b503adfd32fd1384d1f103e44f9a8998fdf7"
+    },
+    {
+      "file": "P03.svg",
+      "path": "D:\\openworker\\openworker\\projects\\nature-protection-students_ppt169_20260825\\svg_output\\P03.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Reference SVG: detected 1 visible root-level <g> module(s) without explicit data-pptx-bounds (<g>); every final-page/template root <g> other than a compact authored-preset atom declares its root-coordinate layout subcanvas even when it also carries native coordinates",
+        "Top-level visible <g> #5 has no id; object-level animation config cannot reference it",
+        "5 ungrouped top-level Slide-local element(s) in svg_output (<text> #2, <text> #3, <text> #4, ...); group only logical content units in a top-level <g id=\"...\">. Keep genuine static page framing as a root primitive and declare a supported data-pptx-role such as \"background\" or \"decoration\"",
+        "page SVG is missing root data-pptx-page-role"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 20,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "geometry": {
+            "svg_elements": {
+              "rect": 5,
+              "circle": 4,
+              "ellipse": 0,
+              "line": 0,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 1
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 0,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Microsoft YaHei, Arial, sans-serif"
+        ],
+        "text_elements": 20,
+        "tspan_elements": 0,
+        "contextual_values": {
+          "colors": [
+            "#567066",
+            "#DDF0FA",
+            "#F0B429",
+            "#FADACF",
+            "#FFF0B8"
+          ]
+        }
+      },
+      "passed": true,
+      "source_sha256": "0213e9ed1051e46d68573765a0267874235e272dfade9b38889175dab9ef09fb"
+    },
+    {
+      "file": "P04.svg",
+      "path": "D:\\openworker\\openworker\\projects\\nature-protection-students_ppt169_20260825\\svg_output\\P04.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Reference SVG: detected 1 visible root-level <g> module(s) without explicit data-pptx-bounds (<g>); every final-page/template root <g> other than a compact authored-preset atom declares its root-coordinate layout subcanvas even when it also carries native coordinates",
+        "Top-level visible <g> #5 has no id; object-level animation config cannot reference it",
+        "4 ungrouped top-level Slide-local element(s) in svg_output (<text> #2, <text> #3, <text> #4, ...); group only logical content units in a top-level <g id=\"...\">. Keep genuine static page framing as a root primitive and declare a supported data-pptx-role such as \"background\" or \"decoration\"",
+        "page SVG is missing root data-pptx-page-role"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 10,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "geometry": {
+            "svg_elements": {
+              "rect": 4,
+              "circle": 1,
+              "ellipse": 0,
+              "line": 0,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 1
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 0,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Microsoft YaHei, Arial, sans-serif"
+        ],
+        "text_elements": 10,
+        "tspan_elements": 0,
+        "contextual_values": {
+          "colors": [
+            "#567066",
+            "#DDF0FA"
+          ]
+        }
+      },
+      "passed": true,
+      "source_sha256": "ae2df4c66e1ff666b503bd1c15ad2fc66b660ade80a9ecb937e1fc91f596d057"
+    },
+    {
+      "file": "P05.svg",
+      "path": "D:\\openworker\\openworker\\projects\\nature-protection-students_ppt169_20260825\\svg_output\\P05.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Reference SVG: detected 3 visible root-level <g> module(s) without explicit data-pptx-bounds (<g>; <g>; <g>); every final-page/template root <g> other than a compact authored-preset atom declares its root-coordinate layout subcanvas even when it also carries native coordinates",
+        "Top-level visible <g> #5 has no id; object-level animation config cannot reference it",
+        "Top-level visible <g> #6 has no id; object-level animation config cannot reference it",
+        "Top-level visible <g> #7 has no id; object-level animation config cannot reference it",
+        "5 ungrouped top-level Slide-local element(s) in svg_output (<text> #2, <text> #3, <text> #4, ...); group only logical content units in a top-level <g id=\"...\">. Keep genuine static page framing as a root primitive and declare a supported data-pptx-role such as \"background\" or \"decoration\"",
+        "page SVG is missing root data-pptx-page-role"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 10,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "geometry": {
+            "svg_elements": {
+              "rect": 2,
+              "circle": 3,
+              "ellipse": 0,
+              "line": 0,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 6
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 0,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Microsoft YaHei, Arial, sans-serif"
+        ],
+        "text_elements": 10,
+        "tspan_elements": 0,
+        "contextual_values": {
+          "colors": [
+            "#DDF0FA",
+            "#FADACF"
+          ]
+        }
+      },
+      "passed": true,
+      "source_sha256": "0a5867a4b8df64d052634cfd60ed210fe171dc9d1d25432ed8ada760babd593b"
+    },
+    {
+      "file": "P06.svg",
+      "path": "D:\\openworker\\openworker\\projects\\nature-protection-students_ppt169_20260825\\svg_output\\P06.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "13 ungrouped top-level Slide-local element(s) in svg_output (<circle> #2, <circle> #3, <text> #4, ...); group only logical content units in a top-level <g id=\"...\">. Keep genuine static page framing as a root primitive and declare a supported data-pptx-role such as \"background\" or \"decoration\"",
+        "page SVG is missing root data-pptx-page-role"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 8,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "geometry": {
+            "svg_elements": {
+              "rect": 1,
+              "circle": 3,
+              "ellipse": 0,
+              "line": 0,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 2
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 0,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Arial, sans-serif",
+          "Microsoft YaHei, Arial, sans-serif"
+        ],
+        "text_elements": 8,
+        "tspan_elements": 0,
+        "contextual_values": {
+          "colors": [
+            "#567066",
+            "#FADACF"
+          ]
+        }
+      },
+      "passed": true,
+      "source_sha256": "67e34a31f5727e8cab9fa3edb82574d25ec1cc8167a74e98d37a067eef2dd1cd"
+    },
+    {
+      "file": "P07.svg",
+      "path": "D:\\openworker\\openworker\\projects\\nature-protection-students_ppt169_20260825\\svg_output\\P07.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Reference SVG: detected 1 visible root-level <g> module(s) without explicit data-pptx-bounds (<g>); every final-page/template root <g> other than a compact authored-preset atom declares its root-coordinate layout subcanvas even when it also carries native coordinates",
+        "Top-level visible <g> #5 has no id; object-level animation config cannot reference it",
+        "4 ungrouped top-level Slide-local element(s) in svg_output (<text> #2, <text> #3, <text> #4, ...); group only logical content units in a top-level <g id=\"...\">. Keep genuine static page framing as a root primitive and declare a supported data-pptx-role such as \"background\" or \"decoration\"",
+        "page SVG is missing root data-pptx-page-role"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 16,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "geometry": {
+            "svg_elements": {
+              "rect": 5,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 0,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 0,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Microsoft YaHei, Arial, sans-serif"
+        ],
+        "text_elements": 16,
+        "tspan_elements": 0,
+        "contextual_values": {
+          "colors": [
+            "#567066",
+            "#DDF0FA",
+            "#FADACF",
+            "#FFF0B8"
+          ]
+        }
+      },
+      "passed": true,
+      "source_sha256": "c243d2d19349e62137fa5769cb8c9ed7ec84a237c7af8376a2ba1ffcf2266a7f"
+    },
+    {
+      "file": "P08.svg",
+      "path": "D:\\openworker\\openworker\\projects\\nature-protection-students_ppt169_20260825\\svg_output\\P08.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Reference SVG: detected 2 visible root-level <g> module(s) without explicit data-pptx-bounds (<g>; <g>); every final-page/template root <g> other than a compact authored-preset atom declares its root-coordinate layout subcanvas even when it also carries native coordinates",
+        "Top-level visible <g> #5 has no id; object-level animation config cannot reference it",
+        "Top-level visible <g> #6 has no id; object-level animation config cannot reference it",
+        "4 ungrouped top-level Slide-local element(s) in svg_output (<text> #2, <text> #3, <text> #4, ...); group only logical content units in a top-level <g id=\"...\">. Keep genuine static page framing as a root primitive and declare a supported data-pptx-role such as \"background\" or \"decoration\"",
+        "page SVG is missing root data-pptx-page-role"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 14,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "geometry": {
+            "svg_elements": {
+              "rect": 1,
+              "circle": 5,
+              "ellipse": 0,
+              "line": 0,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 6
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 0,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Microsoft YaHei, Arial, sans-serif"
+        ],
+        "text_elements": 14,
+        "tspan_elements": 0,
+        "contextual_values": {
+          "colors": [
+            "#567066",
+            "#DDF0FA",
+            "#FADACF",
+            "#FFF0B8"
+          ]
+        }
+      },
+      "passed": true,
+      "source_sha256": "0cca69b323bc56efd559ef0b6ecbf919fae7d86762dc22faaf006bd2f0d00066"
+    },
+    {
+      "file": "P09.svg",
+      "path": "D:\\openworker\\openworker\\projects\\nature-protection-students_ppt169_20260825\\svg_output\\P09.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Reference SVG: detected 1 visible root-level <g> module(s) without explicit data-pptx-bounds (<g>); every final-page/template root <g> other than a compact authored-preset atom declares its root-coordinate layout subcanvas even when it also carries native coordinates",
+        "Top-level visible <g> #9 has no id; object-level animation config cannot reference it",
+        "8 ungrouped top-level Slide-local element(s) in svg_output (<text> #2, <text> #3, <text> #4, ...); group only logical content units in a top-level <g id=\"...\">. Keep genuine static page framing as a root primitive and declare a supported data-pptx-role such as \"background\" or \"decoration\"",
+        "page SVG is missing root data-pptx-page-role"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 11,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "geometry": {
+            "svg_elements": {
+              "rect": 4,
+              "circle": 1,
+              "ellipse": 0,
+              "line": 0,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 1
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 0,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Arial, sans-serif",
+          "Microsoft YaHei, Arial, sans-serif"
+        ],
+        "text_elements": 11,
+        "tspan_elements": 0,
+        "contextual_values": {
+          "colors": [
+            "#567066",
+            "#DDF0FA"
+          ]
+        }
+      },
+      "passed": true,
+      "source_sha256": "e82d5f3121e7d56038d915c2a65aa9cb1323d5ba86d72f954f25398c47938592"
+    },
+    {
+      "file": "P10.svg",
+      "path": "D:\\openworker\\openworker\\projects\\nature-protection-students_ppt169_20260825\\svg_output\\P10.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Reference SVG: detected 1 visible root-level <g> module(s) without explicit data-pptx-bounds (<g>); every final-page/template root <g> other than a compact authored-preset atom declares its root-coordinate layout subcanvas even when it also carries native coordinates",
+        "Top-level visible <g> #5 has no id; object-level animation config cannot reference it",
+        "4 ungrouped top-level Slide-local element(s) in svg_output (<text> #2, <text> #3, <text> #4, ...); group only logical content units in a top-level <g id=\"...\">. Keep genuine static page framing as a root primitive and declare a supported data-pptx-role such as \"background\" or \"decoration\"",
+        "page SVG is missing root data-pptx-page-role"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 14,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "geometry": {
+            "svg_elements": {
+              "rect": 6,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 0,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 0,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Microsoft YaHei, Arial, sans-serif"
+        ],
+        "text_elements": 14,
+        "tspan_elements": 0,
+        "contextual_values": {
+          "colors": [
+            "#DDF0FA",
+            "#FADACF",
+            "#FFF0B8"
+          ]
+        }
+      },
+      "passed": true,
+      "source_sha256": "a212977b86f405dfd1e4d4f70ae68933690aed504d34a758ef6b7d0724f318db"
+    },
+    {
+      "file": "P11.svg",
+      "path": "D:\\openworker\\openworker\\projects\\nature-protection-students_ppt169_20260825\\svg_output\\P11.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Reference SVG: detected 1 visible root-level <g> module(s) without explicit data-pptx-bounds (<g>); every final-page/template root <g> other than a compact authored-preset atom declares its root-coordinate layout subcanvas even when it also carries native coordinates",
+        "Top-level visible <g> #5 has no id; object-level animation config cannot reference it",
+        "4 ungrouped top-level Slide-local element(s) in svg_output (<text> #2, <text> #3, <text> #4, ...); group only logical content units in a top-level <g id=\"...\">. Keep genuine static page framing as a root primitive and declare a supported data-pptx-role such as \"background\" or \"decoration\"",
+        "page SVG is missing root data-pptx-page-role"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 19,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "geometry": {
+            "svg_elements": {
+              "rect": 6,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 0,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 0,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Microsoft YaHei, Arial, sans-serif"
+        ],
+        "text_elements": 19,
+        "tspan_elements": 0,
+        "contextual_values": {
+          "colors": [
+            "#567066"
+          ]
+        }
+      },
+      "passed": true,
+      "source_sha256": "acadba964ead8fa9ede47ce8a8b20f3ebc98ffc3f092cc24c34ad224114f80fb"
+    },
+    {
+      "file": "P12.svg",
+      "path": "D:\\openworker\\openworker\\projects\\nature-protection-students_ppt169_20260825\\svg_output\\P12.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Reference SVG: detected 1 visible root-level <g> module(s) without explicit data-pptx-bounds (<g>); every final-page/template root <g> other than a compact authored-preset atom declares its root-coordinate layout subcanvas even when it also carries native coordinates",
+        "Top-level visible <g> #6 has no id; object-level animation config cannot reference it",
+        "6 ungrouped top-level Slide-local element(s) in svg_output (<text> #2, <text> #3, <text> #4, ...); group only logical content units in a top-level <g id=\"...\">. Keep genuine static page framing as a root primitive and declare a supported data-pptx-role such as \"background\" or \"decoration\"",
+        "page SVG is missing root data-pptx-page-role"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 15,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "geometry": {
+            "svg_elements": {
+              "rect": 2,
+              "circle": 7,
+              "ellipse": 0,
+              "line": 1,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 0,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Microsoft YaHei, Arial, sans-serif"
+        ],
+        "text_elements": 15,
+        "tspan_elements": 0,
+        "contextual_values": {
+          "colors": [
+            "#DDF0FA",
+            "#FADACF"
+          ]
+        }
+      },
+      "passed": true,
+      "source_sha256": "4c083cc0c9fadec96a6d34c3f2dcf17fefa0acf6c33c2b56b83089fb4bd82ef4"
+    },
+    {
+      "file": "P13.svg",
+      "path": "D:\\openworker\\openworker\\projects\\nature-protection-students_ppt169_20260825\\svg_output\\P13.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "10 ungrouped top-level Slide-local element(s) in svg_output (<circle> #2, <circle> #3, <path> #4, ...); group only logical content units in a top-level <g id=\"...\">. Keep genuine static page framing as a root primitive and declare a supported data-pptx-role such as \"background\" or \"decoration\"",
+        "page SVG is missing root data-pptx-page-role"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 6,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "geometry": {
+            "svg_elements": {
+              "rect": 2,
+              "circle": 2,
+              "ellipse": 0,
+              "line": 0,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 1
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 0,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Microsoft YaHei, Arial, sans-serif"
+        ],
+        "text_elements": 6,
+        "tspan_elements": 0,
+        "contextual_values": {
+          "colors": [
+            "#FFF0B8"
+          ]
+        }
+      },
+      "passed": true,
+      "source_sha256": "914583205dd015f13fdd3e4c8fe2291154bea2ce804e7c0afad63c31e9a81397"
+    }
+  ]
+}
