@@ -664,6 +664,13 @@ def test_sidecar_token_gates_rest_and_websockets(tmp_path, monkeypatch):
     ) as ws:
         assert ws.accepted_subprotocol == "openworker"
 
+    assert client.get("/v1/gui/browser-presence", headers=headers).json() == {"open": False}
+    with client.websocket_connect(
+        "/ws/events?surface=browser", subprotocols=["openworker", "a" * 64]
+    ):
+        assert client.get("/v1/gui/browser-presence", headers=headers).json() == {"open": True}
+    assert client.get("/v1/gui/browser-presence", headers=headers).json() == {"open": False}
+
     # Redirect callbacks remain tokenless, then enforce their own signed state.
     assert client.get(
         "/auth/callback", params={"code": "x", "state": "bad"}

@@ -1,4 +1,5 @@
 import type { GroupedQuestion, QuestionOption, SessionInfo, WsEvent } from "./types";
+import { isTauri } from "./tauri";
 
 declare const __COWORKER_DEV_TOKEN__: string;
 
@@ -2148,7 +2149,10 @@ export function connectEvents(
   let closed = false;
   const open = () => {
     if (closed) return;
-    ws = openWebSocket(`${wsBase()}/ws/events`);
+    // The browser marker lets the floating icon avoid opening duplicate tabs.
+    // Tauri deliberately stays unmarked: it is a desktop surface, not a browser page.
+    const surface = isTauri() ? "" : "?surface=browser";
+    ws = openWebSocket(`${wsBase()}/ws/events${surface}`);
     ws.onmessage = (e) => {
       try {
         onEvent(JSON.parse(e.data));

@@ -1,0 +1,11 @@
+<Application
+    x:Class="OpenWorker.WinUIBubbles.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Application.Resources>
+    <SolidColorBrush x:Key="BubbleBackgroundBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="BubbleBorderBrush" Color="#D1D1D1" />
+    <SolidColorBrush x:Key="BubbleTextBrush" Color="#242424" />
+    <SolidColorBrush x:Key="BubbleDangerBrush" Color="#B10E1C" />
+  </Application.Resources>
+</Application>

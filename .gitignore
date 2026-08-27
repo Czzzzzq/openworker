@@ -5,6 +5,9 @@ __pycache__/
 *.egg-info/
 build/
 dist/
+plugins/floating-icon/winui-bubbles/bin/
+plugins/floating-icon/winui-bubbles/obj/
+plugins/floating-icon/winui-bubbles/publish/
 .coverage
 
 # Local OpenWorker runtime state (sessions, credentials, installed skills)

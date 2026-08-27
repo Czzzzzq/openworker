@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from "vitest";
-import { getHealth, Session } from "./api";
+import { connectEvents, getHealth, Session } from "./api";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -13,6 +13,7 @@ it("authenticates REST and session WebSocket calls with the launch token", async
   });
   vi.stubGlobal("fetch", request);
 
+  const sockets: FakeWebSocket[] = [];
   class FakeWebSocket {
     static readonly CONNECTING = 0;
     static readonly OPEN = 1;
@@ -21,11 +22,14 @@ it("authenticates REST and session WebSocket calls with the launch token", async
     onopen: (() => void) | null = null;
     onclose: (() => void) | null = null;
     send = vi.fn();
+    close = vi.fn();
 
     constructor(
       public readonly url: string,
       public readonly protocols?: string | string[],
-    ) {}
+    ) {
+      sockets.push(this);
+    }
   }
   vi.stubGlobal("WebSocket", FakeWebSocket);
 
@@ -46,4 +50,15 @@ it("authenticates REST and session WebSocket calls with the launch token", async
       reasoning_effort: "high",
     }),
   );
+
+  const stopEvents = connectEvents(vi.fn());
+  expect(sockets[1].url).toBe("ws://127.0.0.1:8765/ws/events?surface=browser");
+  expect(sockets[1].protocols).toEqual(["openworker", "launch-token"]);
+  stopEvents();
+  expect(sockets[1].close).toHaveBeenCalledOnce();
+
+  vi.stubGlobal("__TAURI__", {});
+  const stopTauriEvents = connectEvents(vi.fn());
+  expect(sockets[2].url).toBe("ws://127.0.0.1:8765/ws/events");
+  stopTauriEvents();
 });

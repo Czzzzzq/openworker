@@ -251,6 +251,11 @@ def create_app(manager: SessionManager) -> FastAPI:
             "model": manager.model,
         }
 
+    @app.get("/v1/gui/browser-presence")
+    def browser_gui_presence() -> dict[str, bool]:
+        """Whether at least one browser SPA is connected (Tauri does not count)."""
+        return {"open": manager.browser_gui_open()}
+
     @app.get("/v1/agents")
     def agents() -> dict[str, Any]:
         return {"agents": manager.list_agents()}
@@ -2897,12 +2902,17 @@ def create_app(manager: SessionManager) -> FastAPI:
             return
         await ws.accept(subprotocol="openworker" if api_token else None)
         manager.register_event_client(ws.send_json)
+        is_browser = ws.query_params.get("surface") == "browser"
+        if is_browser:
+            manager.register_browser_event_client(ws.send_json)
         try:
             while True:
                 await ws.receive_text()
         except WebSocketDisconnect:
             pass
         finally:
+            if is_browser:
+                manager.unregister_browser_event_client(ws.send_json)
             manager.unregister_event_client(ws.send_json)
 
     return app

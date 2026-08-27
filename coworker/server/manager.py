@@ -281,6 +281,9 @@ class SessionManager:
         # App-wide event sockets (/ws/events): session-independent pushes — today the
         # automation-run-started toast (UX-026); badges could ride it later.
         self._event_clients: set[Any] = set()
+        # Browser SPA event sockets are tracked separately from the Tauri shell. The
+        # floating icon uses this live connection set to avoid opening duplicate tabs.
+        self._browser_event_clients: set[Any] = set()
         # Automation: scheduled tasks store + the tick scheduler (started in the lifespan).
         # The scheduler also resumes self-wake'd sessions each tick (extra_tick).
         self.task_store = TaskStore(base / "automation.db")
@@ -4285,6 +4288,16 @@ class SessionManager:
 
     def unregister_event_client(self, send_cb: Any) -> None:
         self._event_clients.discard(send_cb)
+        self._browser_event_clients.discard(send_cb)
+
+    def register_browser_event_client(self, send_cb: Any) -> None:
+        self._browser_event_clients.add(send_cb)
+
+    def unregister_browser_event_client(self, send_cb: Any) -> None:
+        self._browser_event_clients.discard(send_cb)
+
+    def browser_gui_open(self) -> bool:
+        return bool(self._browser_event_clients)
 
     async def broadcast_event(self, message: dict) -> None:
         """Fan an app-wide event out to every /ws/events socket. Best-effort: a dead
