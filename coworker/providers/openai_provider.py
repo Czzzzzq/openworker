@@ -100,6 +100,16 @@ def _param_fix_retry(kwargs: dict[str, Any], exc: Exception) -> dict[str, Any]:
     msg = str(exc).lower()
     if _EFFORT_ERROR in msg and kwargs.get("reasoning_effort") != "none":
         return {**kwargs, "reasoning_effort": "none"}
+    if (
+        "reasoning_effort" in kwargs
+        and "reasoning_effort" in msg
+        and ("unsupported" in msg or "unknown" in msg)
+    ):
+        # OpenAI-compatible gateways vary: some do not implement the optional knob.
+        # Preserve a working turn by retrying on that provider's own default.
+        fixed = dict(kwargs)
+        fixed.pop("reasoning_effort")
+        return fixed
     if _MAX_TOKENS_ERROR in msg and "max_tokens" in kwargs:
         fixed = dict(kwargs)
         fixed["max_completion_tokens"] = fixed.pop("max_tokens")

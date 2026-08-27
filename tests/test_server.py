@@ -989,6 +989,41 @@ def test_ws_first_message_binds_then_midsession_switch_persists_notice(tmp_path)
     assert all(m.get("role") != "notice" for m in engine._outbound_messages())
 
 
+def test_ws_user_message_applies_and_validates_reasoning_effort(tmp_path):
+    client = _client(tmp_path, [_text("ok"), _text("Session title")])
+    with client.websocket_connect("/ws/session/reasoning-effort") as ws:
+        assert ws.receive_json()["type"] == "ready"
+        ws.send_json(
+            {
+                "type": "user_message",
+                "text": "think quickly",
+                "reasoning_effort": "low",
+            }
+        )
+        _drain(ws)
+        ws.send_json(
+            {
+                "type": "user_message",
+                "text": "bad value",
+                "reasoning_effort": "turbo",
+            }
+        )
+        rejected = ws.receive_json()
+        assert rejected["type"] == "input_rejected"
+        assert "low, medium, or high" in rejected["data"]["error"]
+        ws.send_json(
+            {
+                "type": "user_message",
+                "text": "bad type",
+                "reasoning_effort": {"level": "low"},
+            }
+        )
+        assert ws.receive_json()["type"] == "input_rejected"
+    assert client.app.state.manager._engines["reasoning-effort"].model_settings == {
+        "reasoning_effort": "low"
+    }
+
+
 def test_session_messages_prefers_the_live_engine(tmp_path):
     """Opening a RUNNING session (e.g. a scheduled automation's first turn) must show the live
     conversation: the persisted record may not exist yet mid-turn — reading only the store gave

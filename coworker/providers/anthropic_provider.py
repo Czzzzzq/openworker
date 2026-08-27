@@ -131,6 +131,7 @@ _SETTINGS_WHITELIST = {
 
 # Sampling knobs the API rejects alongside extended thinking (temperature must stay 1).
 _THINKING_INCOMPATIBLE = ("temperature", "top_p", "top_k")
+_EFFORT_BUDGETS = {"low": 2048, "medium": 8192, "high": 16384}
 
 _DATA_URL_RE = re.compile(
     r"^data:(image/[a-z0-9.+-]+);base64,(.+)$", re.IGNORECASE | re.DOTALL
@@ -428,7 +429,16 @@ class AnthropicProvider(ProviderClient):
             stop = settings["stop"]
             settings["stop_sequences"] = [stop] if isinstance(stop, str) else list(stop)
         filtered = {k: v for k, v in settings.items() if k in _SETTINGS_WHITELIST}
-        if self.thinking_budget > 0 and "thinking" not in filtered:
+        effort = settings.get("reasoning_effort")
+        if effort not in _EFFORT_BUDGETS:
+            effort = None
+        if effort and _uses_budget_thinking(model):
+            # Pre-adaptive Claude families expose a token budget rather than effort.
+            filtered["thinking"] = {
+                "type": "enabled",
+                "budget_tokens": _EFFORT_BUDGETS[effort],
+            }
+        elif self.thinking_budget > 0 and "thinking" not in filtered:
             if _uses_budget_thinking(model):
                 filtered["thinking"] = {
                     "type": "enabled",
@@ -438,6 +448,10 @@ class AnthropicProvider(ProviderClient):
                 # 4.6+/Claude 5 family: adaptive only (budget_tokens 400s on 4.7+);
                 # display opt-in or the trace text arrives empty.
                 filtered["thinking"] = {"type": "adaptive", "display": "summarized"}
+        if effort and not _uses_budget_thinking(model):
+            # Adaptive Claude families use the top-level output configuration. Keep this
+            # provider-specific translation out of the engine's neutral model settings.
+            filtered["output_config"] = {"effort": effort}
         thinking = filtered.get("thinking") or {}
         if thinking.get("type") == "enabled":
             # Budget must fit under max_tokens.

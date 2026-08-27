@@ -47,8 +47,8 @@ from .base import (
 from .capabilities import capabilities_for
 from .openai_provider import resolve_api_key
 
-# Request params passed through from model settings; everything else (frequency_penalty,
-# reasoning_effort — no effort knob in v1, the server default rides) is dropped.
+# Request params passed through from model settings; everything else (frequency_penalty, …)
+# is dropped. `reasoning_effort` is normalized below into Responses' nested reasoning object.
 _SETTINGS_WHITELIST = {
     "temperature",
     "top_p",
@@ -363,8 +363,14 @@ class OpenAIResponsesProvider(ProviderClient):
             "include": ["reasoning.encrypted_content"],
             **{k: v for k, v in settings.items() if k in _SETTINGS_WHITELIST},
         }
+        reasoning: dict[str, Any] = {}
         if self._reasoning_summary:
-            kwargs["reasoning"] = {"summary": "auto"}
+            reasoning["summary"] = "auto"
+        effort = settings.get("reasoning_effort")
+        if effort in {"low", "medium", "high"}:
+            reasoning["effort"] = effort
+        if reasoning:
+            kwargs["reasoning"] = reasoning
         if instructions:
             kwargs["instructions"] = instructions
         if tools:

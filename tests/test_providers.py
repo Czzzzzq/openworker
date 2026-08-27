@@ -186,6 +186,27 @@ def test_effort_400_from_an_unpinned_model_retries_once_at_none():
     assert out[-1].turn.text == "ok" and len(client.chat.completions.calls) == 4
 
 
+def test_compat_provider_drops_unsupported_reasoning_effort():
+    class _UnsupportedEffort:
+        def __init__(self):
+            self.calls: list[dict] = []
+
+        def create(self, **kwargs):
+            self.calls.append(kwargs)
+            if "reasoning_effort" in kwargs:
+                raise RuntimeError("Unsupported parameter: 'reasoning_effort'")
+            return _response(content="ok")
+
+    client = _FakeClient(_response(content="unused"))
+    client.chat.completions = _UnsupportedEffort()
+    turn = OpenAIProvider(client=client).complete(
+        model="vendor:model", messages=[], reasoning_effort="high"
+    )
+    assert turn.text == "ok"
+    assert len(client.chat.completions.calls) == 2
+    assert "reasoning_effort" not in client.chat.completions.calls[1]
+
+
 def test_max_tokens_rejection_retries_as_max_completion_tokens():
     """Reasoning-routed models 400 on max_tokens (want max_completion_tokens); compat
     servers know only max_tokens — so the swap happens on rejection, never up front.

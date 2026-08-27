@@ -104,6 +104,8 @@ interface Props {
   onInterrupt: () => void;
   onModeChange: (mode: string) => void;
   onModelChange: (model: string) => void;
+  reasoningEffort?: "low" | "medium" | "high";
+  onReasoningEffortChange?: (effort: "low" | "medium" | "high") => void;
   // When set (Code/Cowork), the Mode menu is shown. The folder/roots + branch controls left the
   // composer for the Session settings drawer (§22) — folder access is standing session config.
   workspace?: string;
@@ -488,6 +490,11 @@ export function Composer(props: Props) {
     value: m,
     label: props.modelLabels?.[m] || shortModel(m),
   }));
+  const reasoningOptions: Option[] = [
+    { value: "low", label: "快速", description: "模型支持时降低延迟，适合简单任务" },
+    { value: "medium", label: "标准", description: "模型支持时平衡速度与推理质量" },
+    { value: "high", label: "深度", description: "模型支持时充分推理，通常更慢、更贵" },
+  ];
 
   const iconBtn =
     "w-7 h-7 grid place-items-center rounded-md text-muted hover:text-ink hover:bg-paper shrink-0";
@@ -712,6 +719,20 @@ export function Composer(props: Props) {
           {/* API 费用预算条（cost meter）— 与 token 统计并列的常驻图框。 */}
           {!dictation?.recording && (
             <CostChip sessionId={props.sessionId} onOpenCost={props.onOpenCost} />
+          )}
+
+          {/* Per-turn reasoning effort. Providers without an effort control ignore it. */}
+          {!dictation?.recording && (
+            <Dropdown
+              prefix="推理"
+              value={props.reasoningEffort || "medium"}
+              options={reasoningOptions}
+              onChange={(value) =>
+                props.onReasoningEffortChange?.(value as "low" | "medium" | "high")
+              }
+              align="right"
+              className="chip"
+            />
           )}
 
           {/* model — a quiet chip, now for the session's whole life (§17 rev 2026-07-22:

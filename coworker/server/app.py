@@ -52,6 +52,7 @@ _WS_RATE_LIMIT_COUNT = 30
 _WS_RATE_LIMIT_WINDOW_SECONDS = 10.0
 _MAX_MESSAGE_TEXT_CHARS = 200_000
 _MAX_ATTACHMENTS_BYTES = 15_000_000  # leaves JSON overhead below the 16 MiB frame cap
+_REASONING_EFFORTS = {"low", "medium", "high"}
 
 
 def _json_value_size(value: Any) -> int:
@@ -2833,6 +2834,16 @@ def create_app(manager: SessionManager) -> FastAPI:
                     if model is not None and not isinstance(model, str):
                         await reject_input("Invalid model: expected a string.")
                         continue
+                    reasoning_effort = message.get("reasoning_effort")
+                    if reasoning_effort is not None:
+                        if (
+                            not isinstance(reasoning_effort, str)
+                            or reasoning_effort not in _REASONING_EFFORTS
+                        ):
+                            await reject_input(
+                                "Invalid reasoning effort: expected low, medium, or high."
+                            )
+                            continue
                     # Force-run (SKILLS-SPEC §4.1 #3): the composer's `/skill` pick rides as a
                     # separate field. Validated against the session's effective menu — a muted
                     # or unknown skill is a visible error, never a silent no-op (§4.6 #15).
@@ -2859,6 +2870,11 @@ def create_app(manager: SessionManager) -> FastAPI:
                         )
                     await _apply_model(model)
                     if text or attachments:
+                        if reasoning_effort is not None:
+                            # Per-message and race-proof, like the visible model selection. The
+                            # engine retains the last choice so Retry/background continuation
+                            # uses the same effort; unsupported providers filter it.
+                            engine.model_settings["reasoning_effort"] = reasoning_effort
                         content = build_user_content(text, attachments)
                         await claim_turn(content=content, display=display)
                 else:

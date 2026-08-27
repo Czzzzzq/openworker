@@ -571,6 +571,25 @@ def test_thinking_config_is_model_family_aware():
     assert "thinking" not in client2.kwargs
 
 
+def test_reasoning_effort_maps_to_adaptive_effort_and_legacy_budget():
+    adaptive = _FakeClient(response=_text_response())
+    AnthropicProvider(client=adaptive, thinking_budget=8192).complete(
+        model="claude-fable-5",
+        messages=[{"role": "user", "content": "x"}],
+        reasoning_effort="low",
+    )
+    assert adaptive.kwargs["output_config"] == {"effort": "low"}
+    assert adaptive.kwargs["thinking"] == {"type": "adaptive", "display": "summarized"}
+
+    legacy = _FakeClient(response=_text_response())
+    AnthropicProvider(client=legacy, thinking_budget=8192).complete(
+        model="claude-haiku-4-5",
+        messages=[{"role": "user", "content": "x"}],
+        reasoning_effort="high",
+    )
+    assert legacy.kwargs["thinking"] == {"type": "enabled", "budget_tokens": 16384}
+
+
 def test_complete_parses_thinking_blocks_into_reasoning_and_sidecar():
     response = SimpleNamespace(
         content=[

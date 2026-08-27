@@ -199,6 +199,16 @@ export function App() {
     useState<WorkspaceCommandTrust | null>(null);
   const [agent, setAgent] = useState("cowork");
   const [model, setModel] = useState("gpt-5.6-sol");
+  const [reasoningEffort, setReasoningEffortState] = useState<"low" | "medium" | "high">(
+    () => {
+      try {
+        const saved = localStorage.getItem("openworker:reasoning-effort");
+        return saved === "low" || saved === "high" ? saved : "medium";
+      } catch {
+        return "medium";
+      }
+    },
+  );
   const [models, setModels] = useState<string[]>([]);
   const [modelLabels, setModelLabels] = useState<Record<string, string>>({});
   // {full model id → context window in tokens} from the curated matrix (verified only);
@@ -468,6 +478,7 @@ export function App() {
     attachments?: Attachment[];
     skill?: string;
     model?: string;
+    reasoningEffort?: "low" | "medium" | "high";
     notice?: string; // e.g. "Temporary folder created · git initialized", shown after the message
   } | null>(null);
   // The in-flight manual run to finalize after its first turn ({taskId, runId, sessionId}).
@@ -978,7 +989,13 @@ export function App() {
               ? [{ kind: "notice", tone: "info", text: p.notice } as Item]
               : []),
           ]);
-          sessionRef.current?.userMessage(p.text, p.attachments, p.model, p.skill);
+          sessionRef.current?.userMessage(
+            p.text,
+            p.attachments,
+            p.model,
+            p.skill,
+            p.reasoningEffort,
+          );
         }
       },
       onClose: () => setConnected(false),
@@ -1123,7 +1140,7 @@ export function App() {
     const shown = skill ? `/${skill}${text ? ` ${text}` : ""}` : text;
     setItems((p) => [...p, { kind: "user", text: shown, attachments, ts: Date.now() / 1000 }]);
     // The visible model rides along with the message (single source of truth per turn).
-    sessionRef.current?.userMessage(text, attachments, model, skill);
+    sessionRef.current?.userMessage(text, attachments, model, skill, reasoningEffort);
     followLatest(); // sending always re-engages stream-following, wherever the user had scrolled
   };
   // Selection popup ("plugin"): 询问 OpenWorker — quote the selected text verbatim and send
@@ -1271,7 +1288,7 @@ export function App() {
     setWorkspace(path);
     setBranch(b ?? null);
     setTempWorkspace(false);
-    pendingPromptRef.current = { ...gate, model };
+    pendingPromptRef.current = { ...gate, model, reasoningEffort };
     setSessionId(newId());
     getRecentWorkspaces().then(setProjects).catch(() => {});
   };
@@ -1296,6 +1313,7 @@ export function App() {
     pendingPromptRef.current = {
       ...gate,
       model,
+      reasoningEffort,
       notice: res.git ? "Temporary folder created · git initialized" : "Temporary folder created",
     };
     setSessionId(sid);
@@ -2085,6 +2103,15 @@ export function App() {
               onInterrupt={interrupt}
               onModeChange={changeMode}
               onModelChange={changeModel}
+              reasoningEffort={reasoningEffort}
+              onReasoningEffortChange={(effort) => {
+                setReasoningEffortState(effort);
+                try {
+                  localStorage.setItem("openworker:reasoning-effort", effort);
+                } catch {
+                  // Preference persistence is best effort (private/locked-down webviews).
+                }
+              }}
               sessionId={sessionId}
               workspace={workspace || ""}
               unattended={unattended}

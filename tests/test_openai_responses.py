@@ -435,13 +435,14 @@ def test_complete_filters_and_aliases_settings():
         temperature=0.2,
         max_tokens=512,  # chat alias → max_output_tokens
         frequency_penalty=0.5,  # not a Responses param → dropped
-        reasoning_effort="high",  # no effort knob in v1 → dropped
+        reasoning_effort="high",
     )
     assert fake.kwargs["temperature"] == 0.2
     assert fake.kwargs["max_output_tokens"] == 512
     assert "max_tokens" not in fake.kwargs
     assert "frequency_penalty" not in fake.kwargs
     assert "reasoning_effort" not in fake.kwargs
+    assert fake.kwargs["reasoning"] == {"summary": "auto", "effort": "high"}
 
 
 def test_complete_passes_flat_tools():
